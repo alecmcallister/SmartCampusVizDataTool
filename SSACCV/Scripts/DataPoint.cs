@@ -19,7 +19,7 @@ public class DataPoint : IComparable<DataPoint>
 	public int loct_month { get; set; }
 	public int loct_julian { get; set; }
 	public int loct_dow { get; set; }
-	public DateTime datetime_start { get; set; }
+	public DateTime loct { get; set; }
 	public int yyc { get; set; }
 	public DateTime datetime_end { get; set; }
 	public decimal yyc_x_end { get; set; }
@@ -52,7 +52,7 @@ public class DataPoint : IComparable<DataPoint>
 	/// <summary>
 	/// How long from start to finish
 	/// </summary>
-	public TimeSpan timeSpan => datetime_end - datetime_start;
+	public TimeSpan timeSpan => datetime_end - loct;
 
 	// Probably m/s? Depends on what unit is used by yyc_whatever data
 	public decimal velocity => yycDelta.magnitude / (decimal)timeSpan.TotalSeconds;
@@ -73,7 +73,7 @@ public class DataPoint : IComparable<DataPoint>
 			return userid.CompareTo(other.userid);
 
 		else
-			return DateTime.Compare(datetime_start, other.datetime_start);
+			return DateTime.Compare(loct, other.loct);
 	}
 
 	#endregion
@@ -88,7 +88,7 @@ public class DataPoint : IComparable<DataPoint>
 	/// <returns>The total time (in minutes) between a.datetime_start and b.datetime_start</returns>
 	public static double TimeDifference(DataPoint a, DataPoint b)
 	{
-		return (b.datetime_start - a.datetime_start).TotalMinutes;
+		return (b.loct - a.loct).TotalMinutes;
 	}
 
 	/// <summary>

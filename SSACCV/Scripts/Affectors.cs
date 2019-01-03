@@ -28,7 +28,7 @@ public static class Affectors
 	/// Minumum number of segments (inclusive) a path must have to be valid.
 	/// Default = 2
 	/// </summary>
-	public const int Path_MinSegments = 2;
+	public const int Path_MinSegments = 4;
 
 	/// <summary>
 	/// Maximum amount of time (minutes) allowed when calculating the contiguity of subsequent points.
@@ -42,7 +42,7 @@ public static class Affectors
 	/// Points located closer than this value will be excluded from the current path.
 	/// Default = 2
 	/// </summary>
-	public const decimal Path_SubsequentDistanceThreshold = 5m;
+	public const decimal Path_SubsequentDistanceThreshold = 10m;
 
 	#endregion
 

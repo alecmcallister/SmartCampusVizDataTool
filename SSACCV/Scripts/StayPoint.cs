@@ -18,7 +18,7 @@ public class StayPoint
 	public int UserID { get; set; }
 	public int StayPointID { get; set; }
 	public Vector2 Location { get; set; }
-	public DateTime StartDate => Contents.Min(p => p.datetime_start);
+	public DateTime StartDate => Contents.Min(p => p.loct);
 	public DateTime EndDate => Contents.Max(p => p.datetime_end);
 
 	public decimal Radius { get; set; }
@@ -133,12 +133,12 @@ public class StayPoint
 			if (j != Contents.Count)
 			{
 				// Only include events that are within the cutoff time of each other (i.e. passing by briefly won't contribute)
-				timeDiff = (Contents[j].datetime_start - Contents[i].datetime_end).TotalMinutes;
+				timeDiff = (Contents[j].loct - Contents[i].datetime_end).TotalMinutes;
 			}
 
 			if (timeDiff > timeDiffCutoff)
 			{
-				DateTime startDate = tempGroup.First().datetime_start;
+				DateTime startDate = tempGroup.First().loct;
 				DateTime endDate = tempGroup.Last().datetime_end;
 
 				double duration = (endDate - startDate).TotalMinutes;
@@ -178,7 +178,7 @@ public class StayPoint
 	double temporalWeight = 1.5d;
 	public double CalculateTemporalScoreOfGroup(List<DataPoint> dataPoints, double timeSpentThreshold = 10d)
 	{
-		double timeSpent = (dataPoints.Last().datetime_end - dataPoints.First().datetime_start).TotalMinutes;
+		double timeSpent = (dataPoints.Last().datetime_end - dataPoints.First().loct).TotalMinutes;
 
 		return timeSpent > Math.Max(1d, timeSpentThreshold) ? Math.Log(timeSpent * temporalWeight) : 0d;
 	}
@@ -210,7 +210,7 @@ public class StayPoint
 	/// <returns></returns>
 	public List<DataPoint> PointsWithinTimeInterval(DateTime start, DateTime end)
 	{
-		return Contents.Where(x => x.datetime_start > start && x.datetime_end < end).ToList();
+		return Contents.Where(x => x.loct > start && x.datetime_end < end).ToList();
 	}
 
 	/// <summary>

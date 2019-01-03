@@ -22,13 +22,25 @@ public class ParticipantManager
 	/// <param name="points">All points read/ converted from the csv input file</param>
 	public void AddDataPoints(List<DataPoint> points)
 	{
+		Console.WriteLine("Adding DataPoints...");
+		DateTime loadStart = DateTime.Now;
+
+		int i = 1;
+		int max = points.Count;
+
 		foreach (DataPoint point in points)
 		{
 			if (!Participants.ContainsKey(point.userid))
 				Participants.Add(point.userid, new Participant(point.userid));
 
 			Participants[point.userid].AddDataPoint(point);
+
+			WriteProgress(i++, max);
 		}
+
+		Console.ForegroundColor = ConsoleColor.Green;
+		Console.WriteLine("\n\tComplete\n\t{0:0.00}s\n", (DateTime.Now - loadStart).TotalSeconds);
+		Console.ResetColor();
 	}
 
 	#region Output
@@ -97,8 +109,8 @@ public class ParticipantManager
 		List<PathPointOutput> onlyOne = new List<PathPointOutput>();
 		MostPaths().Paths.ForEach(p => { onlyOne.AddRange(p.GetOutput()); });
 
-		//return output;
-		return onlyOne;
+		return output;
+		//return onlyOne;
 	}
 
 	#endregion

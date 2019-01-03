@@ -16,8 +16,8 @@ public class Path
 	public List<DataPoint> Contents { get; set; } = new List<DataPoint>();
 	public DataPoint StartPoint => Contents.First();
 	public DataPoint EndPoint => Contents.Last();
-	public DateTime StartDate => StartPoint.datetime_start;
-	public DateTime EndDate => EndPoint.datetime_start;
+	public DateTime StartDate => StartPoint.loct;
+	public DateTime EndDate => EndPoint.loct;
 	public TimeSpan TimeSpan => EndDate - StartDate;
 
 	public DataPoint StartLocation => Contents.First();
@@ -70,7 +70,7 @@ public class Path
 				YYC_Y = point.yycStart.Y,
 				//Date = point.datetime_start,
 				DistanceToNextPoint = next != null ? (next.yycStart - point.yycStart).magnitude : 0,
-				MinutesToNextPoint = next != null ? (next.datetime_start - point.datetime_start).TotalMinutes : 0
+				MinutesToNextPoint = next != null ? (next.loct - point.loct).TotalMinutes : 0
 			});
 		}
 
