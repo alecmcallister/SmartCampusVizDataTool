@@ -13,13 +13,14 @@ public class Program
 		Console.CursorVisible = false;
 
 		string sampleData = GetLocalPath(@"Data\Sample\sample1m.csv");
-		string staypointOutput = GetLocalPath(@"Data\Output\Staypoints_" + DateTime.Now.ToShortDateString() + ".csv");
-		string pathOutput = GetLocalPath(@"Data\Output\Paths_" + DateTime.Now.ToShortDateString() + ".csv");
+		string sampleCroppedData = GetLocalPath(@"Data\Sample\croppedSample1mSmol.csv");
+		string staypointOutput = GetLocalPath(@"Data\Output\Staypoints.csv");
+		string pathOutput = GetLocalPath(@"Data\Output\Paths.csv");
 
 		CsvManager csvManager = new CsvManager();
 		ParticipantManager pManager = new ParticipantManager();
 
-		Task<List<DataPoint>> read = csvManager.ReadAsync(sampleData);
+		Task<List<DataPoint>> read = csvManager.ReadAsync(sampleCroppedData);
 		read.Wait();
 
 		pManager.AddDataPoints(read.Result);

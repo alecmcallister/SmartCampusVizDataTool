@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Data\Sample\croppedSample1mSmol.csv" />
     <None Include="Data\Sample\sample1m.csv" />
     <None Include="packages.config" />
   </ItemGroup>

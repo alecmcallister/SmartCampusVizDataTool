@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -12,8 +14,10 @@ public class ParticipantManager
 	/// <summary>
 	/// Dictionary containing all participants (users) in the dataset
 	/// </summary>
-	public SortedDictionary<int, Participant> Participants = new SortedDictionary<int, Participant>();
+	//public SortedDictionary<int, Participant> Participants = new SortedDictionary<int, Participant>();
 	public Participant this[int i] { get { return Participants.ContainsKey(i) ? Participants[i] : null; } }
+
+	public ConcurrentDictionary<int, Participant> Participants = new ConcurrentDictionary<int, Participant>();
 
 	/// <summary>
 	/// Takes a list of <see cref="DataPoint"/> objects, instantiate a <see cref="Participant"/> for each of the unique 
@@ -22,21 +26,28 @@ public class ParticipantManager
 	/// <param name="points">All points read/ converted from the csv input file</param>
 	public void AddDataPoints(List<DataPoint> points)
 	{
-		Console.WriteLine("Adding DataPoints...");
+		Console.WriteLine("CAdding DataPoints...");
 		DateTime loadStart = DateTime.Now;
 
-		int i = 1;
+		int completed = 0;
 		int max = points.Count;
 
-		foreach (DataPoint point in points)
+		Task log = Task.Run(async () =>
 		{
-			if (!Participants.ContainsKey(point.userid))
-				Participants.Add(point.userid, new Participant(point.userid));
+			while (completed < points.Count - 100)
+			{
+				WriteProgress(completed, max);
+				await Task.Delay(TimeSpan.FromSeconds(0.2f));
+			}
+		});
 
-			Participants[point.userid].AddDataPoint(point);
+		Parallel.ForEach(points, point =>
+		{
+			Participants.AddOrUpdate(point.userid, new Participant(point.userid), (i, p) => { p.AddDataPoint(point); return p; });
+			Interlocked.Increment(ref completed);
+		});
 
-			WriteProgress(i++, max);
-		}
+		WriteProgress(completed, max);
 
 		Console.ForegroundColor = ConsoleColor.Green;
 		Console.WriteLine("\n\tComplete\n\t{0:0.00}s\n", (DateTime.Now - loadStart).TotalSeconds);
