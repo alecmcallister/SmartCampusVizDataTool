@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using System.Threading;
 
 /// <summary>
 /// Represents a single user in the data, along with all data points that belong to them
@@ -11,9 +13,10 @@ public class Participant : IComparable<Participant>
 {
 	public int ID { get; set; }
 
-	public List<DataPoint> Points { get; set; } = new List<DataPoint>();
 	public List<StayPoint> StayPoints { get; set; } = new List<StayPoint>();
 	public List<Path> Paths { get; set; } = new List<Path>();
+
+	public ConcurrentBag<DataPoint> Points { get; set; } = new ConcurrentBag<DataPoint>();
 
 	public Participant() : this(-1) { }
 	public Participant(int id)
@@ -21,58 +24,56 @@ public class Participant : IComparable<Participant>
 		ID = id;
 	}
 
-	#region Add/ remove points
+	#region Add points
 
+	/// <summary>
+	/// Adds the point to our collection.
+	/// </summary>
+	/// <param name="point">The point to add</param>
 	public void AddDataPoint(DataPoint point)
 	{
-		if (!Points.Contains(point))
-			Points.Add(point);
-	}
-
-	public void RemoveDataPoint(DataPoint point)
-	{
-		if (Points.Contains(point))
-			Points.Remove(point);
+		Points.Add(point);
 	}
 
 	#endregion
 
+	#region Staypoints
+
 	/// <summary>
-	/// Calculate the staypoints for this user
-	/// Populates the <see cref="StayPoints"/> list
+	/// Calculate the staypoints for this user.
+	/// Populates the <see cref="StayPoints"/> list.
 	/// </summary>
 	public void CalculateStayPoints()
 	{
 		StayPoints.Clear();
 
-		bool pointsCanExistInMultipleStayPoints = false;
-
-		Points.Sort();
+		List<DataPoint> points = Points.ToList();
+		points.Sort();
 
 		// Go through the sequence of points, and populate the staypoints list
-		foreach (DataPoint point in Points)
+		foreach (DataPoint point in points)
 		{
 			bool flag = false;
 
 			foreach (StayPoint staypoint in StayPoints)
 				if (flag |= staypoint.ConditionalAddPoint(point))
-					if (!pointsCanExistInMultipleStayPoints)
+					if (!Affectors.Stay_PointsCanExistInMultipleStayPoints)
 						break;
 
 			if (!flag)
 				StayPoints.Add(new StayPoint(point, StayPoints.Count));
 		}
 
-		// Minumum number of points in the area to be considered a staypoint
-		// default = 4
-		int minPoints = 4;
+		//// Maybe make the selection based on duration as well??
+		//StayPoints = StayPoints.Where(s => s.Contents.Count >= Affectors.Stay_MinPoints).ToList();
 
-		// Maybe make the selection based on duration as well??
-		StayPoints = StayPoints.Where(s => s.Contents.Count > minPoints).ToList();
-
-		// Re-assign IDs
-		StayPoints.ForEach(s => s.StayPointID = StayPoints.IndexOf(s));
+		//// Re-assign IDs
+		//StayPoints.ForEach(s => s.StayPointID = StayPoints.IndexOf(s));
 	}
+
+	#endregion
+
+	#region Paths
 
 	/// <summary>
 	/// Calculate the paths for this user
@@ -84,7 +85,10 @@ public class Participant : IComparable<Participant>
 
 		Path currentPath = null;
 
-		foreach (DataPoint point in Points)
+		List<DataPoint> points = Points.ToList();
+		points.Sort();
+
+		foreach (DataPoint point in points)
 		{
 			currentPath = currentPath ?? new Path(point, Paths.Count);
 
@@ -92,16 +96,16 @@ public class Participant : IComparable<Participant>
 			if (!currentPath.ConditionalAddPoint(point))
 			{
 				if (currentPath.Segments >= Affectors.Path_MinSegments)
-				{
-					currentPath.StartStayPoint = GetStayPointForDataPoint(currentPath.StartPoint);
-					currentPath.EndStayPoint = GetStayPointForDataPoint(currentPath.EndPoint);
 					Paths.Add(currentPath);
-				}
 
 				currentPath = new Path(point, Paths.Count);
 			}
 		}
 	}
+
+	#endregion
+
+	#region Helpers
 
 	/// <summary>
 	/// Gets the staypoint id that this point resides in (-2 if none)
@@ -124,8 +128,19 @@ public class Participant : IComparable<Participant>
 		return stayPointID;
 	}
 
+	#endregion
+
+	#region Compare
+
+	/// <summary>
+	/// Compares the participant to another, based on their <see cref="Participant.ID"/>.
+	/// </summary>
+	/// <param name="other">Who to compare against</param>
+	/// <returns>I'm never actually sure with these methods...</returns>
 	public int CompareTo(Participant other)
 	{
 		return ID.CompareTo(other.ID);
 	}
+
+	#endregion
 }

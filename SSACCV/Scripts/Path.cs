@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,9 +25,6 @@ public class Path
 	public DataPoint EndLocation => Contents.Last();
 
 	public int Segments => Contents.Count - 1;
-
-	public int StartStayPoint { get; set; }
-	public int EndStayPoint { get; set; }
 
 	/// <summary>
 	/// Instantiates a path object belonging to <paramref name="start"/>.userid, with ID <paramref name="pathID"/>, which starts at <paramref name="start"/>.
@@ -66,10 +64,11 @@ public class Path
 				UserID = UserID,
 				PathID = PathID,
 				PathPointID = i,
-				YYC_X = point.yycStart.X,
-				YYC_Y = point.yycStart.Y,
-				//Date = point.datetime_start,
-				DistanceToNextPoint = next != null ? (next.yycStart - point.yycStart).magnitude : 0,
+				StayPointID = point.staypointID,
+				YYC_X = point.location.X,
+				YYC_Y = point.location.Y,
+				Date = point.loct,
+				DistanceToNextPoint = next != null ? (next.location - point.location).magnitude : 0,
 				MinutesToNextPoint = next != null ? (next.loct - point.loct).TotalMinutes : 0
 			});
 		}
@@ -79,16 +78,15 @@ public class Path
 
 }
 
-public class PathPointOutput
+public class PathPointOutput : IComparable<PathPointOutput>
 {
 	public int UserID { get; set; }
 	public int PathID { get; set; }
 	public int PathPointID { get; set; }
+	public int StayPointID { get; set; }
 	public decimal YYC_X { get; set; }
 	public decimal YYC_Y { get; set; }
-
-	// Dropped end date for simplicity
-	//public DateTime Date { get; set; }
+	public DateTime Date { get; set; }
 
 	// 0 When last point in path
 	public decimal DistanceToNextPoint { get; set; }
@@ -97,7 +95,32 @@ public class PathPointOutput
 	// 0 When last point in path
 	public double MinutesToNextPoint { get; set; }
 
+	public int CompareTo(PathPointOutput other)
+	{
+		int val = UserID.CompareTo(other.UserID);
+
+		if (val == 0)
+			val = PathID.CompareTo(other.PathID);
+
+		if (val == 0)
+			val = PathPointID.CompareTo(other.PathPointID);
+
+		return val;
+	}
+
 	//// TODO: Change to individual path points instead of the overall path
 	//public int StartStayPoint { get; set; }
 	//public int EndStayPoint { get; set; }
+}
+
+
+/// <summary>
+/// UNTIL I ACTUALLY CODE THE PROPER CLASS FOR STAYPOINTGROUP OBJECTS
+/// </summary>
+public static class SUPERSPHAGETTI
+{
+	/// <summary>
+	/// DONT YOU FUCKING DARE LEAVE THIS IN THE PROJECT
+	/// </summary>
+	public static ConcurrentDictionary<StayPointGroupOutput, List<DataPoint>> SPHAGETTI = new ConcurrentDictionary<StayPointGroupOutput, List<DataPoint>>();
 }

@@ -21,12 +21,8 @@ public class CsvManager
 	/// <returns>The .csv read into a list of <see cref="DataPoint"/> objects</returns>
 	public async Task<List<DataPoint>> ReadAsync(string filepath)
 	{
-		Console.WriteLine("Loading dataset:");
+		ConsoleLog.LogStart("Loading dataset:");
 		WritePathToConsole(filepath);
-
-		DateTime loadStart = DateTime.Now;
-
-		await Task.Yield();
 
 		List<DataPoint> dataPoints = new List<DataPoint>();
 
@@ -43,9 +39,7 @@ public class CsvManager
 
 		dataPoints.Sort();
 
-		Console.ForegroundColor = ConsoleColor.Green;
-		Console.WriteLine("\tComplete\n\t{0:0.00}s\n", (DateTime.Now - loadStart).TotalSeconds);
-		Console.ResetColor();
+		ConsoleLog.LogStop();
 
 		return dataPoints;
 	}
@@ -63,10 +57,8 @@ public class CsvManager
 	/// <param name="output">The list of (T)objects to write</param>
 	public void Write<T>(string filepath, List<T> output)
 	{
-		Console.WriteLine("Writing {0}:", typeof(T).Name);
+		ConsoleLog.LogStart(string.Format("Writing {0}:", typeof(T).Name));
 		WritePathToConsole(filepath);
-
-		DateTime loadStart = DateTime.Now;
 
 		using (StreamWriter sr = new StreamWriter(new FileStream(filepath, FileMode.Create)))
 		{
@@ -78,9 +70,7 @@ public class CsvManager
 			}
 		}
 
-		Console.ForegroundColor = ConsoleColor.Green;
-		Console.WriteLine("\tComplete\n\t{0:0.00}s\n", (DateTime.Now - loadStart).TotalSeconds);
-		Console.ResetColor();
+		ConsoleLog.LogStop();
 	}
 
 	#endregion

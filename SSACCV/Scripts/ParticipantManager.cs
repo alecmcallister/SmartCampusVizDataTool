@@ -26,32 +26,16 @@ public class ParticipantManager
 	/// <param name="points">All points read/ converted from the csv input file</param>
 	public void AddDataPoints(List<DataPoint> points)
 	{
-		Console.WriteLine("CAdding DataPoints...");
-		DateTime loadStart = DateTime.Now;
-
-		int completed = 0;
-		int max = points.Count;
-
-		Task log = Task.Run(async () =>
-		{
-			while (completed < points.Count - 100)
-			{
-				WriteProgress(completed, max);
-				await Task.Delay(TimeSpan.FromSeconds(0.2f));
-			}
-		});
+		ConsoleLog.LogStart("Adding DataPoints...");
+		ConsoleLog.LogProgress(points.Count);
 
 		Parallel.ForEach(points, point =>
 		{
 			Participants.AddOrUpdate(point.userid, new Participant(point.userid), (i, p) => { p.AddDataPoint(point); return p; });
-			Interlocked.Increment(ref completed);
+			Interlocked.Increment(ref ConsoleLog.Prog);
 		});
 
-		WriteProgress(completed, max);
-
-		Console.ForegroundColor = ConsoleColor.Green;
-		Console.WriteLine("\n\tComplete\n\t{0:0.00}s\n", (DateTime.Now - loadStart).TotalSeconds);
-		Console.ResetColor();
+		ConsoleLog.LogStop();
 	}
 
 	#region Output
@@ -64,28 +48,75 @@ public class ParticipantManager
 	/// <returns>The list of staypoint groups</returns>
 	public List<StayPointGroupOutput> GetStayPointOutput()
 	{
-		Console.WriteLine("Calculating StayPoint output...");
-		DateTime loadStart = DateTime.Now;
+		ConsoleLog.LogStart("Calculating StayPoint output...");
+		ConsoleLog.LogProgress(Participants.Count);
 
-		List<StayPointGroupOutput> output = new List<StayPointGroupOutput>();
+		ConcurrentBag<StayPointGroupOutput> output = new ConcurrentBag<StayPointGroupOutput>();
 
-		int i = 1;
-		int max = Participants.Count;
-
-		foreach (Participant participant in Participants.Values)
+		Parallel.ForEach(Participants.Values, participant =>
 		{
 			participant.CalculateStayPoints();
-			participant.StayPoints.ForEach(sp => { sp.CalculateStrength(); output.Add(sp.TotalOutput); output.AddRange(sp.Groups); });
 
-			WriteProgress(i++, max);
-		}
+			participant.StayPoints.ForEach(sp =>
+			{
+				sp.GetOutput().ForEach(spo =>
+				{
+					output.Add(spo);
+				});
+			});
 
-		Console.ForegroundColor = ConsoleColor.Green;
-		Console.WriteLine("\n\tComplete\n\t{0:0.00}s\n", (DateTime.Now - loadStart).TotalSeconds);
-		Console.ResetColor();
+			Interlocked.Increment(ref ConsoleLog.Prog);
+		});
 
-		return output;
+		ConsoleLog.LogStop();
+
+		List<StayPointGroupOutput> sorted = output.ToList();
+		sorted.Sort();
+
+		ReAssignIDs(sorted);
+
+		return sorted;
 	}
+
+	void ReAssignIDs(List<StayPointGroupOutput> output)
+	{
+		int id = 0;
+
+		int stayID = 0;
+
+		int x = 0;
+		int y = 0;
+
+		foreach (StayPointGroupOutput g in output)
+		{
+			if (g.UserID != id)
+			{
+				id = g.UserID;
+				stayID = g.StayPointID;
+				x = 0;
+				y = 0;
+			}
+			else
+			{
+				if (g.StayPointID != stayID)
+				{
+					stayID = g.StayPointID;
+					x++;
+					y = 0;
+				}
+				else
+				{
+					y++;
+				}
+			}
+
+			g.StayPointID = x;
+			g.StayPointGroupID = y;
+
+			SUPERSPHAGETTI.SPHAGETTI[g].ForEach(dp => dp.staypointID = x);
+		}
+	}
+
 	#endregion
 
 	#region Path output
@@ -96,32 +127,34 @@ public class ParticipantManager
 	/// <returns>The list of paths</returns>
 	public List<PathPointOutput> GetPathOutput()
 	{
-		Console.WriteLine("Calculating Path output...");
-		DateTime loadStart = DateTime.Now;
+		ConsoleLog.LogStart("Calculating Path output...");
+		ConsoleLog.LogProgress(Participants.Count);
 
-		List<PathPointOutput> output = new List<PathPointOutput>();
+		ConcurrentBag<PathPointOutput> output = new ConcurrentBag<PathPointOutput>();
 
-		int i = 1;
-		int max = Participants.Count;
-
-		foreach (Participant participant in Participants.Values)
+		Parallel.ForEach(Participants.Values, participant =>
 		{
 			participant.CalculatePaths();
+
 			if (participant.Paths.Count >= Affectors.Path_MinPaths)
-				participant.Paths.ForEach(p => { output.AddRange(p.GetOutput()); });
+			{
+				participant.Paths.ForEach(p =>
+				{
+					p.GetOutput().ForEach(ppo =>
+					{
+						output.Add(ppo);
+					});
+				});
+			}
 
-			WriteProgress(i++, max);
-		}
+			Interlocked.Increment(ref ConsoleLog.Prog);
+		});
 
-		Console.ForegroundColor = ConsoleColor.Green;
-		Console.WriteLine("\n\tComplete\n\t{0:0.00}s\n", (DateTime.Now - loadStart).TotalSeconds);
-		Console.ResetColor();
+		ConsoleLog.LogStop();
 
-		List<PathPointOutput> onlyOne = new List<PathPointOutput>();
-		MostPaths().Paths.ForEach(p => { onlyOne.AddRange(p.GetOutput()); });
-
-		return output;
-		//return onlyOne;
+		List<PathPointOutput> sorted = output.ToList();
+		sorted.Sort();
+		return sorted;
 	}
 
 	#endregion
@@ -146,9 +179,60 @@ public class ParticipantManager
 
 	#endregion
 
+}
+
+public static class ConsoleLog
+{
+
+	#region Console Log
+
+	static DateTime LogStartTime;
+	static Task Log;
+
+	public static void LogStart(string message)
+	{
+		LogStartTime = DateTime.Now;
+		Console.WriteLine(message);
+		Log = null;
+	}
+
+	public static void LogStop()
+	{
+		if (Log != null)
+			Log.Wait();
+
+		Log = null;
+		Console.ForegroundColor = ConsoleColor.Green;
+		Console.WriteLine((Console.CursorLeft != 0 ? "\n" : "") + "\tComplete");
+		Console.ForegroundColor = ConsoleColor.DarkGreen;
+		Console.WriteLine("\t{0:0.00}s\n", (DateTime.Now - LogStartTime).TotalSeconds);
+		Console.ResetColor();
+	}
+
+	#region Progress
+
+	public static int Prog;
+	public static int Max;
+
+	public static void LogProgress(int max)
+	{
+		Prog = 0;
+		Max = max;
+
+		Log = Task.Run(() =>
+		{
+			while (Prog < Max)
+				WriteProgress(Prog, Max);
+
+			WriteProgress(Prog, Max);
+		});
+	}
+
+	#endregion
+
 	#region Pretty Colors
 
-	public void WriteProgress(int prog, int max)
+	public static void WriteProgress(int prog, int max)
 	{
 		Console.CursorLeft = 0;
 		Console.Write("(");
@@ -159,6 +243,8 @@ public class ParticipantManager
 
 		Console.Write("/{0})", max);
 	}
+
+	#endregion
 
 	#endregion
 

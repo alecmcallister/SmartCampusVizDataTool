@@ -23,7 +23,9 @@ public class Program
 		Task<List<DataPoint>> read = csvManager.ReadAsync(sampleCroppedData);
 		read.Wait();
 
-		pManager.AddDataPoints(read.Result);
+		List<DataPoint> points = read.Result;
+
+		pManager.AddDataPoints(points);
 
 		csvManager.Write(staypointOutput, pManager.GetStayPointOutput());
 
@@ -41,4 +43,32 @@ public class Program
 			System.IO.Path.GetDirectoryName(
 			AppDomain.CurrentDomain.BaseDirectory))) + @"\" + path;
 	}
+}
+
+public static partial class Extensions
+{
+	#region Shuffle list
+
+	static Random rng = new Random();
+
+	/// <summary>
+	/// https://stackoverflow.com/questions/273313/randomize-a-listt
+	/// User: grenade
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="list"></param>
+	public static void Shuffle<T>(this IList<T> list)
+	{
+		int n = list.Count;
+		while (n > 1)
+		{
+			n--;
+			int k = rng.Next(n + 1);
+			T value = list[k];
+			list[k] = list[n];
+			list[n] = value;
+		}
+	}
+
+	#endregion
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,82 +14,27 @@ public class StayPoint
 	/// <summary>
 	/// The datapoints within this staypoint
 	/// </summary>
-	public List<DataPoint> Contents { get; set; } = new List<DataPoint>();
+	public ConcurrentBag<DataPoint> Contents { get; set; } = new ConcurrentBag<DataPoint>();
 
 	public int UserID { get; set; }
 	public int StayPointID { get; set; }
 	public Vector2 Location { get; set; }
-	public DateTime StartDate => Contents.Min(p => p.loct);
-	public DateTime EndDate => Contents.Max(p => p.datetime_end);
-
-	public decimal Radius { get; set; }
-
-	public TimeSpan TimeSpan => EndDate - StartDate;
-
-	// TODO: Change to method (like paths)
-	public List<StayPointGroupOutput> Groups { get; set; } = new List<StayPointGroupOutput>();
-
-	public StayPointGroupOutput TotalOutput
-	{
-		get
-		{
-			double qScore = Groups.Sum(g => g.QuantityScore);
-			double tScore = Groups.Sum(g => g.TemporalScore);
-			double aScore = Groups.Average(g => g.AccuracyScore);
-			double cScore = Groups.Sum(g => g.CombinedScore);
-
-			return new StayPointGroupOutput()
-			{
-				UserID = UserID,
-				StayPointID = StayPointID,
-				StayPointGroupID = -1,
-				YYC_X = Location.X,
-				YYC_Y = Location.Y,
-				StartDate = StartDate,
-				EndDate = EndDate,
-				StayDurationMinutes = Groups.Sum(g => g.StayDurationMinutes),
-				QuantityScore = qScore,
-				TemporalScore = tScore,
-				AccuracyScore = aScore,
-				CombinedScore = cScore
-			};
-		}
-	}
 
 	/// <summary>
 	/// Initializes a new staypoint centered on the given datapoint
 	/// </summary>
 	/// <param name="point">The raw point data</param>
 	/// <param name="radius">The radius of this staypoint</param>
-	public StayPoint(DataPoint point, int stayPointID, decimal radius = 10m)
+	public StayPoint(DataPoint point, int stayPointID)
 	{
 		UserID = point.userid;
 		StayPointID = stayPointID;
-		Location = point.yycStart;
-		Radius = radius;
+		Location = point.location;
 		Contents.Add(point);
+		//point.staypointID = stayPointID;
 	}
 
-	/// <summary>
-	/// Does this staypoint overlap the given datapoint?
-	/// </summary>
-	/// <param name="point">The point in question.</param>
-	/// <returns>True if the point is within <see cref="Radius"/> units from <see cref="Location"/>, false otherwise</returns>
-	public bool OverlapsPoint(DataPoint point)
-	{
-		return Location.IsWithinDistance(point.yycStart, Radius);
-	}
-
-	/// <summary>
-	/// Returns a list of all staypoints that overlap the given datapoint
-	/// </summary>
-	/// <param name="staypoints">List of staypoints forming the overlap region</param>
-	/// <param name="point">The point to check</param>
-	/// <returns>A subset of the provided staypoints where each staypoint overlaps the datapoint</returns>
-	public static List<StayPoint> ListOverlapsPoint(List<StayPoint> staypoints, DataPoint point)
-	{
-		return staypoints.Where(p => p.OverlapsPoint(point)).ToList();
-	}
+	#region Add point
 
 	/// <summary>
 	/// Only adds points that are within the given radius
@@ -100,87 +46,103 @@ public class StayPoint
 		if (OverlapsPoint(point))
 		{
 			Contents.Add(point);
+			//point.staypointID = StayPointID;
 			return true;
 		}
 
 		return false;
 	}
 
+	#endregion
+
 	#region Strength calculations
 
 	/// <summary>
-	/// Gets the strength of this stay point
+	/// Calculated the strength of the staypoint groups, and returns them in a list.
 	/// </summary>
-	public void CalculateStrength()
+	/// <returns>Output list</returns>
+	public List<StayPointGroupOutput> GetOutput()
 	{
-		Groups.Clear();
+		List<StayPointGroupOutput> output = new List<StayPointGroupOutput>();
 
-		// TODO: Add factor3 = accuracy of grouped points
-
-		// Minutes before the next datapoint is considered outside of the current bonus calculation
-		double timeDiffCutoff = 80d;
-
-		// Keep track of the current running-total minutes spent within this staypoint
+		List<DataPoint> points = Contents.ToList();
+		points.Sort();
 
 		List<DataPoint> tempGroup = new List<DataPoint>();
 
-		for (int i = 0, j = 1; i < Contents.Count; i++, j++)
+		for (int i = 0, j = 1; i < points.Count; i++, j++)
 		{
-			tempGroup.Add(Contents[i]);
+			tempGroup.Add(points[i]);
 
-			double timeDiff = timeDiffCutoff + 1d;
+			double timeDiff = Affectors.Stay_TimeDiffCutoff + 1;
 
+			// Only include events that are within the cutoff time of each other (i.e. passing by briefly won't contribute)
 			if (j != Contents.Count)
-			{
-				// Only include events that are within the cutoff time of each other (i.e. passing by briefly won't contribute)
-				timeDiff = (Contents[j].loct - Contents[i].datetime_end).TotalMinutes;
-			}
+				timeDiff = (points[j].loct - points[i].loct).TotalMinutes;
 
-			if (timeDiff > timeDiffCutoff)
+			if (timeDiff > Affectors.Stay_TimeDiffCutoff)
 			{
 				DateTime startDate = tempGroup.First().loct;
-				DateTime endDate = tempGroup.Last().datetime_end;
+				DateTime endDate = tempGroup.Last().loct;
 
 				double duration = (endDate - startDate).TotalMinutes;
 
 				double qScore = CalculateQuantityScoreOfGroup(tempGroup);
 				double tScore = CalculateTemporalScoreOfGroup(tempGroup);
 				double aScore = CalculateAccuracyScoreOfGroup(tempGroup);
-				double cScore = qScore * Math.Max(1d, tScore) * aScore;
+				double cScore = qScore * tScore * aScore;
 
-				Groups.Add(new StayPointGroupOutput()
+				// Filter based on score
+				bool addToOutput = FilterScore(aScore, duration, tempGroup.Count);
+
+				if (addToOutput)
 				{
-					UserID = UserID,
-					StayPointID = StayPointID,
-					StayPointGroupID = Groups.Count,
-					YYC_X = Location.X,
-					YYC_Y = Location.Y,
-					StartDate = startDate,
-					EndDate = endDate,
-					StayDurationMinutes = duration,
-					QuantityScore = qScore,
-					TemporalScore = tScore,
-					AccuracyScore = aScore,
-					CombinedScore = cScore
-				});
+					StayPointGroupOutput sphagetti = new StayPointGroupOutput()
+					{
+						UserID = UserID,
+						StayPointID = StayPointID,
+						StayPointGroupID = output.Count,
+						YYC_X = Location.X,
+						YYC_Y = Location.Y,
+						StartDate = startDate,
+						EndDate = endDate,
+						StayDurationMinutes = duration,
+						QuantityScore = qScore,
+						TemporalScore = tScore,
+						AccuracyScore = aScore,
+						CombinedScore = cScore
+					};
 
+					output.Add(sphagetti);
+					SUPERSPHAGETTI.SPHAGETTI.TryAdd(sphagetti, tempGroup.ToList());
+				}
 				tempGroup.Clear();
 			}
 		}
+
+		return output;
 	}
 
-	double quantityWeight = 1d;
+	public bool FilterScore(double aScore, double duration, int count)
+	{
+		return
+			Affectors.aVerify(aScore) &&
+			Affectors.durationVerify(duration) &&
+			Affectors.countVerify(count);
+	}
+
+	#region Score calculation
+
 	public double CalculateQuantityScoreOfGroup(List<DataPoint> dataPoints)
 	{
-		return dataPoints.Count * quantityWeight;
+		return Affectors.QuantityScale(Math.Max(1d, dataPoints.Count * Affectors.Stay_QuantityWeight));
 	}
 
-	double temporalWeight = 1.5d;
-	public double CalculateTemporalScoreOfGroup(List<DataPoint> dataPoints, double timeSpentThreshold = 10d)
+	public double CalculateTemporalScoreOfGroup(List<DataPoint> dataPoints)
 	{
-		double timeSpent = (dataPoints.Last().datetime_end - dataPoints.First().loct).TotalMinutes;
+		double timeSpent = (dataPoints.Last().loct - dataPoints.First().loct).TotalMinutes;
 
-		return timeSpent > Math.Max(1d, timeSpentThreshold) ? Math.Log(timeSpent * temporalWeight) : 0d;
+		return Affectors.TemporalScale(Math.Max(1d, timeSpent * Affectors.Stay_TemporalWeight));
 	}
 
 	public double CalculateAccuracyScoreOfGroup(List<DataPoint> dataPoints)
@@ -188,19 +150,24 @@ public class StayPoint
 		if (dataPoints.Count == 0)
 			return 0d;
 
-		double accuracyThreshold = 20d;
-
-		return dataPoints.Average(dp => accuracyThreshold / dp.accuracy);
+		return Math.Min(dataPoints.Average(dp => Affectors.Stay_AccuracyGoal / dp.accuracy), Affectors.Stay_AScoreCeiling);
 	}
 
-	// Incorporate factor corresponding to staypoints used repeatedly over separate dates
-	// Factor to increase score of staypoints that are used commonly year-round (don't relate to a classroom)
-
-	// Do path calculation for each user
+	#endregion
 
 	#endregion
 
 	#region Helpers
+
+	/// <summary>
+	/// Does this staypoint overlap the given datapoint?
+	/// </summary>
+	/// <param name="point">The point in question.</param>
+	/// <returns>True if the point is within <see cref="Radius"/> units from <see cref="Location"/>, false otherwise</returns>
+	public bool OverlapsPoint(DataPoint point)
+	{
+		return Location.IsWithinDistance(point.location, Affectors.Stay_Radius);
+	}
 
 	/// <summary>
 	/// Returns all points within the given interval
@@ -210,7 +177,7 @@ public class StayPoint
 	/// <returns></returns>
 	public List<DataPoint> PointsWithinTimeInterval(DateTime start, DateTime end)
 	{
-		return Contents.Where(x => x.loct > start && x.datetime_end < end).ToList();
+		return Contents.Where(x => x.loct > start && x.loct < end).ToList();
 	}
 
 	/// <summary>
@@ -238,7 +205,7 @@ public class StayPoint
 	#endregion
 }
 
-public class StayPointGroupOutput
+public class StayPointGroupOutput : IComparable<StayPointGroupOutput>
 {
 	public int UserID { get; set; }
 	public int StayPointID { get; set; }
@@ -252,5 +219,21 @@ public class StayPointGroupOutput
 	public double TemporalScore { get; set; }
 	public double AccuracyScore { get; set; }
 	public double CombinedScore { get; set; }
+
+	public int CompareTo(StayPointGroupOutput other)
+	{
+		int val = UserID.CompareTo(other.UserID);
+
+		if (val == 0)
+			val = StayPointID.CompareTo(other.StayPointID);
+
+		if (val == 0)
+			val = StayPointGroupID.CompareTo(other.StayPointGroupID);
+
+		if (val == 0)
+			val = StartDate.CompareTo(other.StartDate);
+
+		return val;
+	}
 }
 

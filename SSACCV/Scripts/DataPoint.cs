@@ -10,52 +10,17 @@ using System.Threading.Tasks;
 public class DataPoint : IComparable<DataPoint>
 {
 	public int userid { get; set; }
-	public decimal lon_start { get; set; }
-	public decimal lat_start { get; set; }
 	public decimal yyc_x_start { get; set; }
 	public decimal yyc_y_start { get; set; }
 	public int accuracy { get; set; }
-	public int loct_year { get; set; }
-	public int loct_month { get; set; }
-	public int loct_julian { get; set; }
-	public int loct_dow { get; set; }
 	public DateTime loct { get; set; }
-	public int yyc { get; set; }
-	public DateTime datetime_end { get; set; }
-	public decimal yyc_x_end { get; set; }
-	public decimal yyc_y_end { get; set; }
-	public double steplength { get; set; }
-	public int id { get; set; }
-	public string geom_start { get; set; }
-	public string study_area { get; set; }
-	public string used { get; set; }
-	public double time_interval { get; set; }
-	public double speed { get; set; }
-	public int objectid_1 { get; set; }
 
 	/// <summary>
 	/// Where the point started
 	/// </summary>
-	public Vector2 yycStart => new Vector2(yyc_x_start, yyc_y_start);
+	public Vector2 location => new Vector2(yyc_x_start, yyc_y_start);
 
-	/// <summary>
-	/// Where the point ended
-	/// PROBABLY DON'T WANT TO USE THIS VALUE EVER
-	/// </summary>
-	public Vector2 yycEnd => new Vector2(yyc_x_end, yyc_y_end);
-
-	/// <summary>
-	/// The delta vector from <see cref="yycStart"/> to <see cref="yycEnd"/>
-	/// </summary>
-	public Vector2 yycDelta => yycEnd - yycStart;
-
-	/// <summary>
-	/// How long from start to finish
-	/// </summary>
-	public TimeSpan timeSpan => datetime_end - loct;
-
-	// Probably m/s? Depends on what unit is used by yyc_whatever data
-	public decimal velocity => yycDelta.magnitude / (decimal)timeSpan.TotalSeconds;
+	public int staypointID { get; set; } = -1;
 
 	#region Compare
 
@@ -98,7 +63,7 @@ public class DataPoint : IComparable<DataPoint>
 	/// <returns>The distance between the two points (in meters probably)</returns>
 	public decimal DistanceTo(DataPoint b)
 	{
-		return (b.yycStart - yycStart).magnitude;
+		return (b.location - location).magnitude;
 	}
 
 	#endregion
