@@ -18,7 +18,7 @@ public static class Affectors
 	/// a given staypoint.
 	/// Default = 10
 	/// </summary>
-	public const decimal Stay_Radius = 10m;
+	public const decimal Stay_Radius = 20m;
 	
 	/// <summary>
 	/// Should a single point be allowed to be in more than one staypoint?
@@ -30,7 +30,7 @@ public static class Affectors
 	/// Time (minutes) before the next datapoint is considered outside of the current bonus calculation.
 	/// Default = 80
 	/// </summary>
-	public const double Stay_TimeDiffCutoff = 80d;
+	public const double Stay_TimeDiffCutoff = 50d;
 
 	#region Score filtering
 
@@ -115,7 +115,7 @@ public static class Affectors
 	/// <summary>
 	/// Maximum amount of time (minutes) allowed when calculating the contiguity of subsequent points.
 	/// Points occuring later than this value will be excluded from the current path.
-	/// Default = 30
+	/// Default = 20
 	/// </summary>
 	public const double Path_SubsequentPointTimeCutoff = 20d;
 
@@ -124,7 +124,8 @@ public static class Affectors
 	/// Points located closer than this value will be excluded from the current path.
 	/// Default = 2
 	/// </summary>
-	public const decimal Path_SubsequentDistanceThreshold = 25m;
+	public const decimal Path_MinSubsequentDistanceThreshold = 15m;
+	public const decimal Path_MaxSubsequentDistanceThreshold = 200m;
 
 	#endregion
 

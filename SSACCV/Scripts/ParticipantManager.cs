@@ -203,7 +203,12 @@ public static class ConsoleLog
 		Console.ForegroundColor = ConsoleColor.Green;
 		Console.WriteLine((Console.CursorLeft != 0 ? "\n" : "") + "\tComplete");
 		Console.ForegroundColor = ConsoleColor.DarkGreen;
-		Console.WriteLine("\t{0:0.00}s\n", (DateTime.Now - LogStartTime).TotalSeconds);
+		TimeSpan timeDiff = DateTime.Now - LogStartTime;
+		int timeDiffMinutes = timeDiff.Minutes;
+		double timeDiffSeconds = timeDiffMinutes > 0 ? timeDiff.Seconds : timeDiff.TotalSeconds;
+		string minComp = timeDiffMinutes > 0 ? string.Format("\t{0}m ", timeDiffMinutes) : "\t";
+		string totalComp = minComp + string.Format("{0:0.00}s\n", timeDiffSeconds);
+		Console.WriteLine(totalComp);
 		Console.ResetColor();
 	}
 

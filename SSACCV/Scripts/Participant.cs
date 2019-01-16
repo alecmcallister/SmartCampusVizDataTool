@@ -63,12 +63,6 @@ public class Participant : IComparable<Participant>
 			if (!flag)
 				StayPoints.Add(new StayPoint(point, StayPoints.Count));
 		}
-
-		//// Maybe make the selection based on duration as well??
-		//StayPoints = StayPoints.Where(s => s.Contents.Count >= Affectors.Stay_MinPoints).ToList();
-
-		//// Re-assign IDs
-		//StayPoints.ForEach(s => s.StayPointID = StayPoints.IndexOf(s));
 	}
 
 	#endregion

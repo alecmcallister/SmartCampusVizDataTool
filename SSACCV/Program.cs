@@ -30,7 +30,7 @@ public class Program
 
 		pManager.AddDataPoints(points);
 
-		csvManager.Write(staypointOutput, pManager.GetStayPointOutput());
+		//csvManager.Write(staypointOutput, pManager.GetStayPointOutput());
 
 		csvManager.Write(pathOutput, pManager.GetPathOutput());
 
