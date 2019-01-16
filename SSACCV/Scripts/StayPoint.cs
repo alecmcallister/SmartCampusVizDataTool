@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CsvHelper.Configuration.Attributes;
 
 /// <summary>
 /// Abstract representation of a popular staying location for a user.
@@ -18,7 +19,10 @@ public class StayPoint
 
 	public int UserID { get; set; }
 	public int StayPointID { get; set; }
+	public string BuildingID { get; set; }
+	public string BuildingName { get; set; }
 	public Vector2 Location { get; set; }
+	public Vector2 YYC_Location { get; set; }
 
 	/// <summary>
 	/// Initializes a new staypoint centered on the given datapoint
@@ -29,9 +33,11 @@ public class StayPoint
 	{
 		UserID = point.userid;
 		StayPointID = stayPointID;
+		BuildingID = point.building_id;
+		BuildingName = point.building_name;
 		Location = point.location;
+		YYC_Location = point.yyc_location;
 		Contents.Add(point);
-		//point.staypointID = stayPointID;
 	}
 
 	#region Add point
@@ -46,7 +52,6 @@ public class StayPoint
 		if (OverlapsPoint(point))
 		{
 			Contents.Add(point);
-			//point.staypointID = StayPointID;
 			return true;
 		}
 
@@ -61,9 +66,9 @@ public class StayPoint
 	/// Calculated the strength of the staypoint groups, and returns them in a list.
 	/// </summary>
 	/// <returns>Output list</returns>
-	public List<StayPointGroupOutput> GetOutput()
+	public List<StaypointOutput> GetOutput()
 	{
-		List<StayPointGroupOutput> output = new List<StayPointGroupOutput>();
+		List<StaypointOutput> output = new List<StaypointOutput>();
 
 		List<DataPoint> points = Contents.ToList();
 		points.Sort();
@@ -82,8 +87,10 @@ public class StayPoint
 
 			if (timeDiff > Affectors.Stay_TimeDiffCutoff)
 			{
-				DateTime startDate = tempGroup.First().loct;
-				DateTime endDate = tempGroup.Last().loct;
+				DataPoint first = tempGroup.First();
+				DataPoint last = tempGroup.Last();
+				DateTime startDate = first.loct;
+				DateTime endDate = last.loct;
 
 				double duration = (endDate - startDate).TotalMinutes;
 
@@ -97,24 +104,33 @@ public class StayPoint
 
 				if (addToOutput)
 				{
-					StayPointGroupOutput sphagetti = new StayPointGroupOutput()
+					StaypointOutput spaghetti = new StaypointOutput()
 					{
 						UserID = UserID,
-						StayPointID = StayPointID,
-						StayPointGroupID = output.Count,
-						YYC_X = Location.X,
-						YYC_Y = Location.Y,
+						StaypointID = StayPointID,
+						StaypointGroupID = output.Count,
 						StartDate = startDate,
 						EndDate = endDate,
 						StayDurationMinutes = duration,
+						AcademicDayStart = first.academic_day,
+						AcademicDayEnd = last.academic_day,
+						BuildingID = BuildingID,
+						BuildingName = BuildingName,
+						Lat = Location.X,
+						Lon = Location.Y,
+						YYC_X = YYC_Location.X,
+						YYC_Y = YYC_Location.Y,
+						MaxTemp = tempGroup.Average(p => p.max_temp),
+						MeanTemp = tempGroup.Average(p => p.mean_temp),
+						TotalPrecip = tempGroup.Average(p => p.total_precip),
+						Snow = (int)tempGroup.Average(p => p.snow),
 						QuantityScore = qScore,
 						TemporalScore = tScore,
 						AccuracyScore = aScore,
 						CombinedScore = cScore
 					};
 
-					output.Add(sphagetti);
-					SUPERSPHAGETTI.SPHAGETTI.TryAdd(sphagetti, tempGroup.ToList());
+					output.Add(spaghetti);
 				}
 				tempGroup.Clear();
 			}
@@ -163,10 +179,10 @@ public class StayPoint
 	/// Does this staypoint overlap the given datapoint?
 	/// </summary>
 	/// <param name="point">The point in question.</param>
-	/// <returns>True if the point is within <see cref="Radius"/> units from <see cref="Location"/>, false otherwise</returns>
+	/// <returns>True if the point is within <see cref="Radius"/> units from <see cref="YYC_Location"/>, false otherwise</returns>
 	public bool OverlapsPoint(DataPoint point)
 	{
-		return Location.IsWithinDistance(point.location, Affectors.Stay_Radius);
+		return YYC_Location.IsWithinDistance(point.yyc_location, Affectors.Stay_Radius);
 	}
 
 	/// <summary>
@@ -204,36 +220,3 @@ public class StayPoint
 
 	#endregion
 }
-
-public class StayPointGroupOutput : IComparable<StayPointGroupOutput>
-{
-	public int UserID { get; set; }
-	public int StayPointID { get; set; }
-	public int StayPointGroupID { get; set; }
-	public decimal YYC_X { get; set; }
-	public decimal YYC_Y { get; set; }
-	public DateTime StartDate { get; set; }
-	public DateTime EndDate { get; set; }
-	public double StayDurationMinutes { get; set; }
-	public double QuantityScore { get; set; }
-	public double TemporalScore { get; set; }
-	public double AccuracyScore { get; set; }
-	public double CombinedScore { get; set; }
-
-	public int CompareTo(StayPointGroupOutput other)
-	{
-		int val = UserID.CompareTo(other.UserID);
-
-		if (val == 0)
-			val = StayPointID.CompareTo(other.StayPointID);
-
-		if (val == 0)
-			val = StayPointGroupID.CompareTo(other.StayPointGroupID);
-
-		if (val == 0)
-			val = StartDate.CompareTo(other.StartDate);
-
-		return val;
-	}
-}
-

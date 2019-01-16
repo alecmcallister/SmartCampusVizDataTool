@@ -50,9 +50,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Scripts\Affectors.cs" />
+    <Compile Include="Scripts\CsvStuff\Converters.cs" />
     <Compile Include="Scripts\CsvStuff\CsvManager.cs" />
     <Compile Include="Scripts\CsvStuff\DataPointMap.cs" />
     <Compile Include="Scripts\DataPoint.cs" />
+    <Compile Include="Scripts\Output\PathOutput.cs" />
+    <Compile Include="Scripts\Output\StaypointOutput.cs" />
     <Compile Include="Scripts\Participant.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Data\Sample\CroppedMaster_Jan14.csv" />
     <None Include="Data\Sample\croppedSample1mSmol.csv" />
     <None Include="Data\Sample\sample1m.csv" />
     <None Include="packages.config" />

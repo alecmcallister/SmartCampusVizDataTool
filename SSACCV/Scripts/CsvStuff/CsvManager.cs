@@ -30,7 +30,7 @@ public class CsvManager
 		{
 			using (CsvReader csv = new CsvReader(sr))
 			{
-				csv.Configuration.RegisterClassMap(new DataPointMap());
+				//csv.Configuration.RegisterClassMap(new DataPointMap());
 				await csv.ReadAsync();
 				csv.ReadHeader();
 				dataPoints = csv.GetRecords<DataPoint>().ToList();

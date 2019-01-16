@@ -46,12 +46,12 @@ public class ParticipantManager
 	/// Calculates the participants staypoint groups, and returns them in a list ready to be written to a csv.
 	/// </summary>
 	/// <returns>The list of staypoint groups</returns>
-	public List<StayPointGroupOutput> GetStayPointOutput()
+	public List<StaypointOutput> GetStayPointOutput()
 	{
 		ConsoleLog.LogStart("Calculating StayPoint output...");
 		ConsoleLog.LogProgress(Participants.Count);
 
-		ConcurrentBag<StayPointGroupOutput> output = new ConcurrentBag<StayPointGroupOutput>();
+		ConcurrentBag<StaypointOutput> output = new ConcurrentBag<StaypointOutput>();
 
 		Parallel.ForEach(Participants.Values, participant =>
 		{
@@ -70,7 +70,7 @@ public class ParticipantManager
 
 		ConsoleLog.LogStop();
 
-		List<StayPointGroupOutput> sorted = output.ToList();
+		List<StaypointOutput> sorted = output.ToList();
 		sorted.Sort();
 
 		ReAssignIDs(sorted);
@@ -78,7 +78,7 @@ public class ParticipantManager
 		return sorted;
 	}
 
-	void ReAssignIDs(List<StayPointGroupOutput> output)
+	void ReAssignIDs(List<StaypointOutput> output)
 	{
 		int id = 0;
 
@@ -87,20 +87,20 @@ public class ParticipantManager
 		int x = 0;
 		int y = 0;
 
-		foreach (StayPointGroupOutput g in output)
+		foreach (StaypointOutput g in output)
 		{
 			if (g.UserID != id)
 			{
 				id = g.UserID;
-				stayID = g.StayPointID;
+				stayID = g.StaypointID;
 				x = 0;
 				y = 0;
 			}
 			else
 			{
-				if (g.StayPointID != stayID)
+				if (g.StaypointID != stayID)
 				{
-					stayID = g.StayPointID;
+					stayID = g.StaypointID;
 					x++;
 					y = 0;
 				}
@@ -110,10 +110,8 @@ public class ParticipantManager
 				}
 			}
 
-			g.StayPointID = x;
-			g.StayPointGroupID = y;
-
-			SUPERSPHAGETTI.SPHAGETTI[g].ForEach(dp => dp.staypointID = x);
+			g.StaypointID = x;
+			g.StaypointGroupID = y;
 		}
 	}
 
@@ -125,12 +123,12 @@ public class ParticipantManager
 	/// Calculates the participants paths, and returns them in a list ready to be written to a csv.
 	/// </summary>
 	/// <returns>The list of paths</returns>
-	public List<PathPointOutput> GetPathOutput()
+	public List<PathOutput> GetPathOutput()
 	{
 		ConsoleLog.LogStart("Calculating Path output...");
 		ConsoleLog.LogProgress(Participants.Count);
 
-		ConcurrentBag<PathPointOutput> output = new ConcurrentBag<PathPointOutput>();
+		ConcurrentBag<PathOutput> output = new ConcurrentBag<PathOutput>();
 
 		Parallel.ForEach(Participants.Values, participant =>
 		{
@@ -152,7 +150,7 @@ public class ParticipantManager
 
 		ConsoleLog.LogStop();
 
-		List<PathPointOutput> sorted = output.ToList();
+		List<PathOutput> sorted = output.ToList();
 		sorted.Sort();
 		return sorted;
 	}

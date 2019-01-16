@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,13 +15,15 @@ public class Program
 
 		string sampleData = GetLocalPath(@"Data\Sample\sample1m.csv");
 		string sampleCroppedData = GetLocalPath(@"Data\Sample\croppedSample1mSmol.csv");
-		string staypointOutput = GetLocalPath(@"Data\Output\Staypoints.csv");
-		string pathOutput = GetLocalPath(@"Data\Output\Paths.csv");
+		string masterData = GetLocalPath(@"Data\Sample\CroppedMaster_Jan14.csv");
+
+		string staypointOutput = GetLocalPath(@"Data\Output\Staypoints_" + DateTime.Today.Date.ToString("MMMdd") + ".csv");
+		string pathOutput = GetLocalPath(@"Data\Output\Paths_" + DateTime.Today.Date.ToString("MMMdd") + ".csv");
 
 		CsvManager csvManager = new CsvManager();
 		ParticipantManager pManager = new ParticipantManager();
 
-		Task<List<DataPoint>> read = csvManager.ReadAsync(sampleCroppedData);
+		Task<List<DataPoint>> read = csvManager.ReadAsync(masterData);
 		read.Wait();
 
 		List<DataPoint> points = read.Result;
@@ -43,32 +46,4 @@ public class Program
 			System.IO.Path.GetDirectoryName(
 			AppDomain.CurrentDomain.BaseDirectory))) + @"\" + path;
 	}
-}
-
-public static partial class Extensions
-{
-	#region Shuffle list
-
-	static Random rng = new Random();
-
-	/// <summary>
-	/// https://stackoverflow.com/questions/273313/randomize-a-listt
-	/// User: grenade
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <param name="list"></param>
-	public static void Shuffle<T>(this IList<T> list)
-	{
-		int n = list.Count;
-		while (n > 1)
-		{
-			n--;
-			int k = rng.Next(n + 1);
-			T value = list[k];
-			list[k] = list[n];
-			list[n] = value;
-		}
-	}
-
-	#endregion
 }

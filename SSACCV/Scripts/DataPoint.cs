@@ -1,5 +1,10 @@
-﻿using System;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.Configuration.Attributes;
+using CsvHelper.TypeConversion;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,17 +14,65 @@ using System.Threading.Tasks;
 /// </summary>
 public class DataPoint : IComparable<DataPoint>
 {
+	#region Fields/ Columns
+
+	[Name("User_ID")]
 	public int userid { get; set; }
-	public decimal yyc_x_start { get; set; }
-	public decimal yyc_y_start { get; set; }
+
+	[Name("Accuracy")]
 	public int accuracy { get; set; }
+
+	[Name("Loct"), TypeConverter(typeof(DateConverter))]
 	public DateTime loct { get; set; }
 
-	/// <summary>
-	/// Where the point started
-	/// </summary>
-	public Vector2 location => new Vector2(yyc_x_start, yyc_y_start);
+	[Name("Academic_Day")]
+	public string academic_day { get; set; }
 
+	[Name("Building_ID")]
+	public string building_id { get; set; }
+
+	[Name("Building_Name")]
+	public string building_name { get; set; }
+
+	[Name("Lat"), TypeConverter(typeof(DecimalConvert))]
+	public decimal lat { get; set; }
+
+	[Name("Lon"), TypeConverter(typeof(DecimalConvert))]
+	public decimal lon { get; set; }
+
+	[Name("YYC_X"), TypeConverter(typeof(DecimalConvert))]
+	public decimal yyc_x { get; set; }
+
+	[Name("YYC_Y"), TypeConverter(typeof(DecimalConvert))]
+	public decimal yyc_y { get; set; }
+
+	[Name("Distance"), TypeConverter(typeof(DoubleConvert))]
+	public double distance { get; set; }
+
+	[Name("Speed"), TypeConverter(typeof(DoubleConvert))]
+	public double speed { get; set; }
+
+	[Name("Max_Temp_C"), TypeConverter(typeof(DoubleConvert))]
+	public double max_temp { get; set; }
+
+	[Name("Mean_Temp_C"), TypeConverter(typeof(DoubleConvert))]
+	public double mean_temp { get; set; }
+
+	[Name("Total_Precip_mm"), TypeConverter(typeof(DoubleConvert))]
+	public double total_precip { get; set; }
+
+	[Name("Snow_cm")]
+	public int snow { get; set; }
+
+	#endregion
+
+	[Ignore]
+	public Vector2 yyc_location => new Vector2(yyc_x, yyc_y);
+
+	[Ignore]
+	public Vector2 location => new Vector2(lat, lon);
+
+	[Ignore]
 	public int staypointID { get; set; } = -1;
 
 	#region Compare
@@ -63,7 +116,7 @@ public class DataPoint : IComparable<DataPoint>
 	/// <returns>The distance between the two points (in meters probably)</returns>
 	public decimal DistanceTo(DataPoint b)
 	{
-		return (b.location - location).magnitude;
+		return (b.yyc_location - yyc_location).magnitude;
 	}
 
 	#endregion
