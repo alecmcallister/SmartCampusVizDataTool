@@ -28,9 +28,10 @@ namespace SSACCV_WPF
 		public MainWindow()
 		{
 			Instance = this;
+
 			Console.Clear();
-			Console.SetWindowSize(80, 30);
-			Console.SetBufferSize(80, 30);
+			Console.SetWindowSize(80, 40);
+			Console.SetBufferSize(80, 40);
 			Console.CursorVisible = false;
 
 			Affectors.Instance = new Affectors();

@@ -104,6 +104,8 @@ public class StayPoint
 
 				if (addToOutput)
 				{
+					Vector2 centroid = Vector2.Centroid(tempGroup.Select(p => p.location).ToList());
+
 					StaypointOutput spaghetti = new StaypointOutput()
 					{
 						UserID = UserID,
@@ -127,7 +129,9 @@ public class StayPoint
 						QuantityScore = qScore,
 						TemporalScore = tScore,
 						AccuracyScore = aScore,
-						CombinedScore = cScore
+						CombinedScore = cScore,
+						Centroid_X = centroid.X,
+						Centroid_Y = centroid.Y
 					};
 
 					output.Add(spaghetti);

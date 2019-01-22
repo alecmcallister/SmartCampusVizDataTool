@@ -78,7 +78,9 @@ public class Path
 				MaxTemp = point.max_temp,
 				MeanTemp = point.mean_temp,
 				TotalPrecip = point.total_precip,
-				Snow = point.snow
+				Snow = point.snow,
+				AzimuthPath = Vector2.Azimuth(StartPoint.location, EndPoint.location),
+				AzimuthSegment = next != null ? Vector2.Azimuth(point.location, next.location) : 0d
 			});
 		}
 

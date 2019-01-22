@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SSACCV_WPF"
         Title="Super Smart and Cool Campus Viz" 
-		Height="775" Width="500"
+		Height="780" Width="500"
 		MinHeight="400" MinWidth="350"
 		AllowsTransparency="True"
 		WindowStyle="None"

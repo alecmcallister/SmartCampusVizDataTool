@@ -64,6 +64,12 @@ public class PathOutput : IComparable<PathOutput>
 	[Name("Snow_cm")]
 	public int Snow { get; set; }
 
+	[Name("Azimuth_Path")]
+	public double AzimuthPath { get; set; }
+
+	[Name("Azimuth_Segment")]
+	public double AzimuthSegment { get; set; }
+
 	#endregion
 
 	public int CompareTo(PathOutput other)

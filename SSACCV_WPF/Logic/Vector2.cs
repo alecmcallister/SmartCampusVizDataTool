@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -54,6 +55,27 @@ public class Vector2
 	public static decimal Dot(Vector2 lhs, Vector2 rhs)
 	{
 		return (lhs.X * rhs.X) + (lhs.Y * rhs.Y);
+	}
+
+	public static double Angle(Vector2 a, Vector2 b)
+	{
+		double num = (double)Dot(a, b);
+		double den = (double)(a.magnitude * b.magnitude);
+		return Math.Acos(Math.Cos(num / den));
+	}
+
+	public static double Azimuth(Vector2 from, Vector2 to)
+	{
+		double val = (180d / Math.PI) * Math.Atan2((double)(to.X - from.X), (double)(to.Y - from.Y));
+		return val;
+	}
+
+	public static Vector2 Centroid(List<Vector2> list)
+	{
+		Vector2 result = zero;
+		list.ForEach(x => result += x);
+		result /= list.Count;
+		return result;
 	}
 
 	public override string ToString()

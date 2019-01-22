@@ -80,6 +80,12 @@ public class StaypointOutput : IComparable<StaypointOutput>
 	[Name("Combined_Score")]
 	public double CombinedScore { get; set; }
 
+	[Name("Centroid_X")]
+	public decimal Centroid_X { get; set; }
+
+	[Name("Centroid_Y")]
+	public decimal Centroid_Y { get; set; }
+
 	#endregion
 
 	public int CompareTo(StaypointOutput other)
