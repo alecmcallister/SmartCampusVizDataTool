@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="SSACCV_WPF.InputField"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SSACCV_WPF"
+			 Margin="0,5">
+	<UserControl.Resources>
+	</UserControl.Resources>
+	<Grid Background="Transparent">
+		<Border>
+			<Border 
+				Background="#333" 
+				CornerRadius="3" 
+				BorderBrush="#aaa" 
+				BorderThickness="0,0,1,1" 
+				ClipToBounds="True">
+
+				<Border
+					Background="Transparent" 
+					CornerRadius="2"
+					BorderBrush="#111"
+					BorderThickness="1,2,0,0">
+
+					<Grid>
+
+						<TextBox x:Name="TextBox"
+							Style="{StaticResource BaseTextBox}"
+							TextChanged="TextChanged"
+							KeyDown="TextBox_KeyDown"
+							PreviewTextInput="TextBox_PreviewTextInput"
+							Foreground="{StaticResource Text-Light-Brush}"
+							Text="" />
+
+					</Grid>
+
+				</Border>
+			</Border>
+		</Border>
+	</Grid>
+</UserControl>

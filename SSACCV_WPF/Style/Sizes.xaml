@@ -1,0 +1,21 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:system="clr-namespace:System;assembly=mscorlib"
+                    xmlns:local="clr-namespace:SSACCV_WPF">
+
+	<system:Double x:Key="Text-V-Small">14</system:Double>
+	<system:Double x:Key="Text-Small">16</system:Double>
+	<system:Double x:Key="Text-Regular">20</system:Double>
+    <system:Double x:Key="Text-Large">24</system:Double>
+    <system:Double x:Key="Text-V-Large">48</system:Double>
+    <system:Double x:Key="Text-Title">72</system:Double>
+
+	<system:Double x:Key="Icon-Small">20</system:Double>
+	<system:Double x:Key="Icon-Regular">24</system:Double>
+	<system:Double x:Key="Icon-Filter-Size">28</system:Double>
+	<system:Double x:Key="Icon-Large">36</system:Double>
+
+	<CornerRadius x:Key="CornerRadius">10</CornerRadius>
+	<Thickness x:Key="MarginThickness">10</Thickness>
+	
+</ResourceDictionary>

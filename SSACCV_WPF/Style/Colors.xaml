@@ -1,0 +1,72 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:SSACCV_WPF">
+
+	<Color x:Key="Primary">#448aff</Color>
+	<SolidColorBrush x:Key="Primary-Brush" Color="{StaticResource Primary}" />
+
+	<Color x:Key="Primary-Light">#83b9ff</Color>
+	<SolidColorBrush x:Key="Primary-Light-Brush" Color="{StaticResource Primary-Light}" />
+
+	<Color x:Key="Primary-Dark">#005ecb</Color>
+	<SolidColorBrush x:Key="Primary-Dark-Brush" Color="{StaticResource Primary-Dark}" />
+
+	<Color x:Key="FG">#ffffff</Color>
+	<SolidColorBrush x:Key="FG-Brush" Color="{StaticResource FG}" />
+
+	<Color x:Key="FG-Hover">#f9f9f9</Color>
+	<SolidColorBrush x:Key="FG-Hover-Brush" Color="{StaticResource FG-Hover}" />
+
+	<Color x:Key="BG">#eeeeee</Color>
+	<SolidColorBrush x:Key="BG-Brush" Color="{StaticResource BG}" />
+
+	<Color x:Key="BG-Dark">#bcbcbc</Color>
+	<SolidColorBrush x:Key="BG-Dark-Brush" Color="{StaticResource BG-Dark}" />
+
+	<Color x:Key="BG-Darker">#afafaf</Color>
+	<SolidColorBrush x:Key="BG-Darker-Brush" Color="{StaticResource BG-Darker}" />
+
+	<Color x:Key="Text-Light">#fff</Color>
+	<SolidColorBrush x:Key="Text-Light-Brush" Color="{StaticResource Text-Light}" />
+
+	<Color x:Key="Text-Dark">#222222</Color>
+	<SolidColorBrush x:Key="Text-Dark-Brush" Color="{StaticResource Text-Dark}" />
+
+	<Color x:Key="Star">#fff176</Color>
+	<SolidColorBrush x:Key="Star-Brush" Color="{StaticResource Star}" />
+
+	<Color x:Key="Inactive">#888888</Color>
+	<SolidColorBrush x:Key="Inactive-Brush" Color="{StaticResource Inactive}" />
+
+	<Color x:Key="Inactive-Light">#ccc</Color>
+	<SolidColorBrush x:Key="Inactive-Light-Brush" Color="{StaticResource Inactive-Light}" />
+
+	<Color x:Key="Red-Normal">#ff5252</Color>
+	<SolidColorBrush x:Key="Red-Normal-Brush" Color="{StaticResource Red-Normal}" />
+
+	<Color x:Key="Red-Light">#ff867f</Color>
+	<SolidColorBrush x:Key="Red-Light-Brush" Color="{StaticResource Red-Light}" />
+
+	<Color x:Key="Red-Dark">#c50e29</Color>
+	<SolidColorBrush x:Key="Red-Dark-Brush" Color="{StaticResource Red-Dark}" />
+
+	<Color x:Key="Green-Normal">#7f7</Color>
+	<SolidColorBrush x:Key="Green-Normal-Brush" Color="{StaticResource Green-Normal}" />
+
+	<DropShadowEffect x:Key="DropShadow" BlurRadius="3" Opacity="0.3" Direction="270" ShadowDepth="1"/>
+
+	<DropShadowEffect x:Key="DropShadow-L" BlurRadius="5" Opacity="0.6" Direction="270" ShadowDepth="2"/>
+
+	<DropShadowEffect x:Key="DropShadow-F" BlurRadius="3" Opacity="0.3" ShadowDepth="0"/>
+
+	<DropShadowEffect x:Key="DropShadow-W" BlurRadius="5" Opacity="0.5" ShadowDepth="0" Direction="-90" />
+
+	<DropShadowEffect x:Key="DropShadow-LL" BlurRadius="10" Opacity="0.7" ShadowDepth="2" Direction="-90" Color="{StaticResource Red-Dark}" />
+
+
+	<Color x:Key="BG-Very-Dark">#444</Color>
+	<SolidColorBrush x:Key="BG-Very-Dark-Brush" Color="{StaticResource BG-Very-Dark}" />
+	<Color x:Key="BG-Very-Very-Dark">#333</Color>
+	<SolidColorBrush x:Key="BG-Very-Very-Dark-Brush" Color="{StaticResource BG-Very-Very-Dark}" />
+
+</ResourceDictionary>
