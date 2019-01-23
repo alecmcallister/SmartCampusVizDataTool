@@ -50,12 +50,6 @@ public class StaypointOutput : IComparable<StaypointOutput>
 	[Name("Lon")]
 	public decimal Lon { get; set; }
 
-	[Name("YYC_X")]
-	public decimal YYC_X { get; set; }
-
-	[Name("YYC_Y")]
-	public decimal YYC_Y { get; set; }
-
 	[Name("Max_Temp_C")]
 	public double MaxTemp { get; set; }
 
@@ -80,11 +74,17 @@ public class StaypointOutput : IComparable<StaypointOutput>
 	[Name("Combined_Score")]
 	public double CombinedScore { get; set; }
 
-	[Name("Centroid_X")]
-	public decimal Centroid_X { get; set; }
+	[Name("Centroid_Lat")]
+	public decimal CentroidLat { get; set; }
 
-	[Name("Centroid_Y")]
-	public decimal Centroid_Y { get; set; }
+	[Name("Centroid_Lon")]
+	public decimal CentroidLon { get; set; }
+
+	[Name("Group_Centroid_Lat")]
+	public decimal GroupCentroidLat { get; set; }
+
+	[Name("Group_Centroid_Lon")]
+	public decimal GroupCentroidLon { get; set; }
 
 	#endregion
 

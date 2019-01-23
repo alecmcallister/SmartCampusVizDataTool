@@ -57,18 +57,68 @@ public class Vector2
 		return (lhs.X * rhs.X) + (lhs.Y * rhs.Y);
 	}
 
-	public static double Angle(Vector2 a, Vector2 b)
-	{
-		double num = (double)Dot(a, b);
-		double den = (double)(a.magnitude * b.magnitude);
-		return Math.Acos(Math.Cos(num / den));
-	}
-
 	public static double Azimuth(Vector2 from, Vector2 to)
 	{
-		double val = (180d / Math.PI) * Math.Atan2((double)(to.X - from.X), (double)(to.Y - from.Y));
-		return val;
+		return DegreeBearing((double)from.X, (double)from.Y, (double)to.X, (double)to.Y);
 	}
+
+	public double DistanceTo(Vector2 other)
+	{
+		return AzimuthDistance(this, other);
+	}
+
+	/// <summary>
+	/// https://stackoverflow.com/questions/2042599/direction-between-2-latitude-longitude-points-in-c-sharp
+	/// </summary>
+	#region
+
+	static double DegreeBearing(double lat1, double lon1, double lat2, double lon2)
+	{
+		double dLon = ToRad(lon2 - lon1);
+		double dPhi = Math.Log(Math.Tan(ToRad(lat2) / 2d + Math.PI / 4d) / Math.Tan(ToRad(lat1) / 2d + Math.PI / 4d));
+
+		if (Math.Abs(dLon) > Math.PI)
+			dLon = dLon > 0 ? -(2d * Math.PI - dLon) : (2d * Math.PI + dLon);
+
+		return ToBearing(Math.Atan2(dLon, dPhi));
+	}
+
+	public static double ToRad(double degrees)
+	{
+		return degrees * (Math.PI / 180d);
+	}
+
+	public static double ToDegrees(double radians)
+	{
+		return radians * (180d / Math.PI);
+	}
+
+	public static double ToBearing(double radians)
+	{
+		return (ToDegrees(radians) + 360d) % 360d;
+	}
+
+	/// <summary>
+	/// https://www.movable-type.co.uk/scripts/latlong.html
+	/// </summary>
+	public static double AzimuthDistance(Vector2 from, Vector2 to)
+	{
+		double R = 6371e3;
+		double lat1 = ToRad((double)from.X);
+		double lat2 = ToRad((double)to.X);
+		double dlat = ToRad((double)(to.X - from.X));
+		double dlon = ToRad((double)(to.Y - from.Y));
+
+		double a = Math.Sin(dlat / 2) * Math.Sin(dlat / 2) +
+				Math.Cos(lat1) * Math.Cos(lat2) *
+				Math.Sin(dlon / 2) * Math.Sin(dlon / 2);
+		double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+		double d = R * c;
+		return d;
+	}
+
+	#endregion
 
 	public static Vector2 Centroid(List<Vector2> list)
 	{
@@ -98,9 +148,9 @@ public class Vector2
 
 	#region Maths
 
-	public bool IsWithinDistance(Vector2 other, decimal distance)
+	public bool IsWithinDistance(Vector2 other, double distance)
 	{
-		return (other - this).magnitude < distance;
+		return AzimuthDistance(this, other) < distance;
 	}
 
 	public static Vector2 Average(List<Vector2> vectors)

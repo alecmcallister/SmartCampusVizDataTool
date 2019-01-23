@@ -39,7 +39,7 @@ public class Affectors
 	/// a given staypoint.
 	/// Default = 10
 	/// </summary>
-	public decimal Stay_Radius { get; set; } = 20m;
+	public double Stay_Radius { get; set; } = 20d;
 	
 	/// <summary>
 	/// Should a single point be allowed to be in more than one staypoint?
@@ -145,8 +145,8 @@ public class Affectors
 	/// Points located closer than this value will be excluded from the current path.
 	/// Default = 2
 	/// </summary>
-	public decimal Path_MinSubsequentDistanceThreshold { get; set; } = 15m;
-	public decimal Path_MaxSubsequentDistanceThreshold { get; set; } = 200m;
+	public double Path_MinSubsequentDistanceThreshold { get; set; } = 15d;
+	public double Path_MaxSubsequentDistanceThreshold { get; set; } = 200d;
 
 	#endregion
 

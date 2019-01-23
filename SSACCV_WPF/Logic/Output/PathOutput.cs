@@ -40,14 +40,8 @@ public class PathOutput : IComparable<PathOutput>
 	[Name("Lon")]
 	public decimal Lon { get; set; }
 
-	[Name("YYC_X")]
-	public decimal YYC_X { get; set; }
-
-	[Name("YYC_Y")]
-	public decimal YYC_Y { get; set; }
-
 	[Name("Distance_To_Next")]
-	public decimal DistanceToNextPoint { get; set; }
+	public double DistanceToNextPoint { get; set; }
 
 	[Name("Minutes_To_Next")]
 	public double MinutesToNextPoint { get; set; }

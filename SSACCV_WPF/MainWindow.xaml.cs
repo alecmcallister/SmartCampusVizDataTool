@@ -29,6 +29,13 @@ namespace SSACCV_WPF
 		{
 			Instance = this;
 
+			//Vector2 start = new Vector2(51.07801m, -114.1315m);
+			//Vector2 end = new Vector2(51.07858m, -114.1305m);
+
+			//Console.WriteLine(Vector2.Azimuth(start, end));
+			//Console.WriteLine(Vector2.AzimuthDistance(start, end));
+			//Console.ReadLine();
+
 			Console.Clear();
 			Console.SetWindowSize(80, 40);
 			Console.SetBufferSize(80, 40);

@@ -40,12 +40,6 @@ public class DataPoint : IComparable<DataPoint>
 	[Name("Lon"), TypeConverter(typeof(DecimalConvert))]
 	public decimal lon { get; set; }
 
-	[Name("YYC_X"), TypeConverter(typeof(DecimalConvert))]
-	public decimal yyc_x { get; set; }
-
-	[Name("YYC_Y"), TypeConverter(typeof(DecimalConvert))]
-	public decimal yyc_y { get; set; }
-
 	[Name("Distance"), TypeConverter(typeof(DoubleConvert))]
 	public double distance { get; set; }
 
@@ -67,13 +61,7 @@ public class DataPoint : IComparable<DataPoint>
 	#endregion
 
 	[Ignore]
-	public Vector2 yyc_location => new Vector2(yyc_x, yyc_y);
-
-	[Ignore]
 	public Vector2 location => new Vector2(lat, lon);
-
-	[Ignore]
-	public int staypointID { get; set; } = -1;
 
 	#region Compare
 
@@ -114,9 +102,9 @@ public class DataPoint : IComparable<DataPoint>
 	/// </summary>
 	/// <param name="b">The other point</param>
 	/// <returns>The distance between the two points (in meters probably)</returns>
-	public decimal DistanceTo(DataPoint b)
+	public double DistanceTo(DataPoint b)
 	{
-		return (b.yyc_location - yyc_location).magnitude;
+		return Vector2.AzimuthDistance(location, b.location);
 	}
 
 	#endregion

@@ -22,7 +22,7 @@ public class StayPoint
 	public string BuildingID { get; set; }
 	public string BuildingName { get; set; }
 	public Vector2 Location { get; set; }
-	public Vector2 YYC_Location { get; set; }
+	public Vector2 Centroid => Vector2.Centroid(Contents.Select(p => p.location).ToList());
 
 	/// <summary>
 	/// Initializes a new staypoint centered on the given datapoint
@@ -36,7 +36,6 @@ public class StayPoint
 		BuildingID = point.building_id;
 		BuildingName = point.building_name;
 		Location = point.location;
-		YYC_Location = point.yyc_location;
 		Contents.Add(point);
 	}
 
@@ -73,6 +72,9 @@ public class StayPoint
 		List<DataPoint> points = Contents.ToList();
 		points.Sort();
 
+		// Only do the calculation once
+		Vector2 centroid = Centroid;
+
 		List<DataPoint> tempGroup = new List<DataPoint>();
 
 		for (int i = 0, j = 1; i < points.Count; i++, j++)
@@ -104,7 +106,7 @@ public class StayPoint
 
 				if (addToOutput)
 				{
-					Vector2 centroid = Vector2.Centroid(tempGroup.Select(p => p.location).ToList());
+					Vector2 groupCentroid = Vector2.Centroid(tempGroup.Select(p => p.location).ToList());
 
 					StaypointOutput spaghetti = new StaypointOutput()
 					{
@@ -120,8 +122,6 @@ public class StayPoint
 						BuildingName = BuildingName,
 						Lat = Location.X,
 						Lon = Location.Y,
-						YYC_X = YYC_Location.X,
-						YYC_Y = YYC_Location.Y,
 						MaxTemp = tempGroup.Average(p => p.max_temp),
 						MeanTemp = tempGroup.Average(p => p.mean_temp),
 						TotalPrecip = tempGroup.Average(p => p.total_precip),
@@ -130,8 +130,10 @@ public class StayPoint
 						TemporalScore = tScore,
 						AccuracyScore = aScore,
 						CombinedScore = cScore,
-						Centroid_X = centroid.X,
-						Centroid_Y = centroid.Y
+						CentroidLat = centroid.X,
+						CentroidLon = centroid.Y,
+						GroupCentroidLat = groupCentroid.X,
+						GroupCentroidLon = groupCentroid.Y
 					};
 
 					output.Add(spaghetti);
@@ -183,10 +185,10 @@ public class StayPoint
 	/// Does this staypoint overlap the given datapoint?
 	/// </summary>
 	/// <param name="point">The point in question.</param>
-	/// <returns>True if the point is within <see cref="Radius"/> units from <see cref="YYC_Location"/>, false otherwise</returns>
+	/// <returns>True if the point is within <see cref="Radius"/> units, false otherwise</returns>
 	public bool OverlapsPoint(DataPoint point)
 	{
-		return YYC_Location.IsWithinDistance(point.yyc_location, Affectors.Instance.Stay_Radius);
+		return Location.IsWithinDistance(point.location, Affectors.Instance.Stay_Radius);
 	}
 
 	/// <summary>
