@@ -128,6 +128,58 @@ public class ParticipantManager
 
 	#endregion
 
+	#region Community StayPoint output
+
+	public List<CommunityStaypointOutput> GetCommunityStayPointOutput()
+	{
+		if (!ReadyForCalc)
+			return null;
+
+		List<CommunityStaypointOutput> output = new List<CommunityStaypointOutput>();
+
+		List<Staypoint> staypoints = new List<Staypoint>();
+
+		Participants.Values.ToList().ForEach(p => { staypoints.AddRange(p.StayPoints); });
+
+		List<List<Staypoint>> grouped = Staypoint.GroupByDate(staypoints);
+
+		foreach (List<Staypoint> group in grouped)
+		{
+			CommunityStaypoint csp = new CommunityStaypoint(group[0]);
+
+			for (int i = 1; i < group.Count; i++)
+			{
+				Staypoint sp = group[i];
+
+				if (!csp.ConditionalAddStaypoint(sp))
+				{
+					Vector2 centroid = csp.Centroid;
+
+					// Assign an ID, and add it to the list
+					CommunityStaypointOutput cspo = new CommunityStaypointOutput()
+					{
+						CommunityStaypointID = output.Count,
+						Lat = csp.Location.X,
+						Lon = csp.Location.Y,
+						CentroidLat = centroid.X,
+						CentroidLon = centroid.Y
+					};
+
+				}
+			}
+
+
+
+
+		}
+
+
+
+		return output;
+	}
+
+	#endregion
+
 	#region Path output
 
 	/// <summary>

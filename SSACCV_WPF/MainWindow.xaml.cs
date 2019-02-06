@@ -29,13 +29,6 @@ namespace SSACCV_WPF
 		{
 			Instance = this;
 
-			//Vector2 start = new Vector2(51.07801m, -114.1315m);
-			//Vector2 end = new Vector2(51.07858m, -114.1305m);
-
-			//Console.WriteLine(Vector2.Azimuth(start, end));
-			//Console.WriteLine(Vector2.AzimuthDistance(start, end));
-			//Console.ReadLine();
-
 			Console.Clear();
 			Console.SetWindowSize(80, 40);
 			Console.SetBufferSize(80, 40);
@@ -52,7 +45,7 @@ namespace SSACCV_WPF
 			InputFilePath.HeaderLabel.Text = "Input file:";
 			InputFilePath.LoadRequested += LoadData;
 
-			CalcPathButton.IsEnabled = CalcStayButton.IsEnabled = false;
+			CalcPathButton.IsEnabled = CalcStayButton.IsEnabled = CalcCommunityStayButton.IsEnabled = false;
 
 			CsvManager.BusyChanged += b => { CalcPathButton.IsEnabled = CalcStayButton.IsEnabled = !b; };
 		}
@@ -141,6 +134,49 @@ namespace SSACCV_WPF
 		void StayMouseLeave(object sender, MouseEventArgs e)
 		{
 			CalcStayBorder.Background = (Brush)TryFindResource("Primary-Brush");
+		}
+
+		#endregion
+
+		#region Community Staypoint button
+
+		void CommunityStayClick(object sender, RoutedEventArgs e)
+		{
+			if (!participantManager.ReadyForCalc)
+				return;
+
+			Opacity = 0.5d;
+
+			try
+			{
+				SaveFileDialog dialog = new SaveFileDialog();
+				dialog.Filter = "CSV (*.csv)|*.csv";
+				dialog.FileName = "CommunityStaypoints_" + DateTime.Today.Date.ToString("MMMdd") + ".csv";
+				string path = "";
+
+				if (dialog.ShowDialog() == true)
+				{
+					path = dialog.FileName;
+
+					csvManager.Write(path, participantManager.GetCommunityStayPointOutput() ?? new List<CommunityStaypointOutput>());
+				}
+			}
+			catch
+			{
+				Console.Error.WriteLine("Error calculating community staypoints.");
+			}
+
+			Opacity = 1d;
+		}
+
+		void CommunityStayMouseEnter(object sender, MouseEventArgs e)
+		{
+			CalcCommunityStayBorder.Background = (Brush)TryFindResource("Primary-Dark-Brush");
+		}
+
+		void CommunityStayMouseLeave(object sender, MouseEventArgs e)
+		{
+			CalcCommunityStayBorder.Background = (Brush)TryFindResource("Primary-Brush");
 		}
 
 		#endregion

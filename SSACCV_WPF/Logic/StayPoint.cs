@@ -10,7 +10,7 @@ using CsvHelper.Configuration.Attributes;
 /// Abstract representation of a popular staying location for a user.
 /// Ex. classroom, favorite eating spot, etc.
 /// </summary>
-public class StayPoint
+public class Staypoint
 {
 	/// <summary>
 	/// The datapoints within this staypoint
@@ -24,12 +24,15 @@ public class StayPoint
 	public Vector2 Location { get; set; }
 	public Vector2 Centroid => Vector2.Centroid(Contents.Select(p => p.location).ToList());
 
+	public DateTime StartDate => Contents.Min(d => d.loct);
+	public DateTime EndDate => Contents.Max(d => d.loct);
+
 	/// <summary>
 	/// Initializes a new staypoint centered on the given datapoint
 	/// </summary>
 	/// <param name="point">The raw point data</param>
 	/// <param name="radius">The radius of this staypoint</param>
-	public StayPoint(DataPoint point, int stayPointID)
+	public Staypoint(DataPoint point, int stayPointID)
 	{
 		UserID = point.userid;
 		StayPointID = stayPointID;
@@ -208,7 +211,7 @@ public class StayPoint
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>A list of <see cref="DataPoint"/> which reside in both staypoints.</returns>
-	public static List<DataPoint> operator &(StayPoint a, StayPoint b)
+	public static List<DataPoint> operator &(Staypoint a, Staypoint b)
 	{
 		return a.Contents.Where(p => a.OverlapsPoint(p) && b.OverlapsPoint(p)).ToList();
 	}
@@ -219,9 +222,17 @@ public class StayPoint
 	/// <param name="a"></param>
 	/// <param name="b"></param>
 	/// <returns>A list of <see cref="DataPoint"/> which reside in either staypoint.</returns>
-	public static List<DataPoint> operator |(StayPoint a, StayPoint b)
+	public static List<DataPoint> operator |(Staypoint a, Staypoint b)
 	{
 		return a.Contents.Union(b.Contents).ToList();
+	}
+
+	public static List<List<Staypoint>> GroupByDate(List<Staypoint> input)
+	{
+		input.Sort(Comparer<Staypoint>.Create((sp1, sp2) => { return sp1.StartDate.CompareTo(sp2.StartDate); }));
+
+		// https://stackoverflow.com/questions/2697253/using-linq-to-group-a-list-of-objects-into-a-new-grouped-list-of-list-of-objects
+		return input.GroupBy(sp => sp.StartDate.Date).Select(g => g.ToList()).ToList();
 	}
 
 	#endregion

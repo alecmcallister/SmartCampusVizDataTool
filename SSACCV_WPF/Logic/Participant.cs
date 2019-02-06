@@ -13,7 +13,7 @@ public class Participant : IComparable<Participant>
 {
 	public int ID { get; set; }
 
-	public List<StayPoint> StayPoints { get; set; } = new List<StayPoint>();
+	public List<Staypoint> StayPoints { get; set; } = new List<Staypoint>();
 	public List<Path> Paths { get; set; } = new List<Path>();
 
 	public ConcurrentBag<DataPoint> Points { get; set; } = new ConcurrentBag<DataPoint>();
@@ -55,13 +55,13 @@ public class Participant : IComparable<Participant>
 		{
 			bool flag = false;
 
-			foreach (StayPoint staypoint in StayPoints)
+			foreach (Staypoint staypoint in StayPoints)
 				if (flag |= staypoint.ConditionalAddPoint(point))
 					if (!Affectors.Instance.Stay_PointsCanExistInMultipleStayPoints)
 						break;
 
 			if (!flag)
-				StayPoints.Add(new StayPoint(point, StayPoints.Count));
+				StayPoints.Add(new Staypoint(point, StayPoints.Count));
 		}
 	}
 
@@ -110,7 +110,7 @@ public class Participant : IComparable<Participant>
 	{
 		int stayPointID = -2;
 
-		foreach (StayPoint stayPoint in StayPoints)
+		foreach (Staypoint stayPoint in StayPoints)
 		{
 			if (stayPoint.Contents.Contains(point))
 			{
