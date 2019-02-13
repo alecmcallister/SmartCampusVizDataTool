@@ -37,9 +37,9 @@ public class Affectors
 	/// <summary>
 	/// The radius of each staypoint (meters?). Used when determining if a point resides within
 	/// a given staypoint.
-	/// Default = 10
+	/// Default = 50
 	/// </summary>
-	public double Stay_Radius { get; set; } = 20d;
+	public double Stay_Radius { get; set; } = 50d;
 	
 	/// <summary>
 	/// Should a single point be allowed to be in more than one staypoint?

@@ -112,6 +112,7 @@ public class Vector2
 		double a = Math.Sin(dlat / 2) * Math.Sin(dlat / 2) +
 				Math.Cos(lat1) * Math.Cos(lat2) *
 				Math.Sin(dlon / 2) * Math.Sin(dlon / 2);
+
 		double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
 		double d = R * c;
