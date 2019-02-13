@@ -26,6 +26,7 @@
 					<RowDefinition Height="50"/>
 					<RowDefinition Height="*"/>
 					<RowDefinition Height="55"/>
+					<RowDefinition Height="55"/>
 				</Grid.RowDefinitions>
 
 				<Grid Grid.Row="0" Width="50" HorizontalAlignment="Left" Panel.ZIndex="3" Effect="{StaticResource DropShadow-L}">
@@ -118,6 +119,53 @@
 								MouseLeave="PathMouseLeave"/>
 						</Grid>
 					</Border>
+
+				</Grid>
+				<Grid  Grid.Row="4">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="*"/>
+					</Grid.ColumnDefinitions>
+
+					<Border Grid.Column="0" x:Name="CalcCommunityStayBorder" Margin="0,5,2.5,0" CornerRadius="10" Background="{StaticResource Primary-Brush}">
+						<Grid>
+							<TextBlock 
+								FontFamily="{StaticResource RobotoLight}"
+								Text="Community Staypoints"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								Effect="{StaticResource DropShadow-L}"/>
+							<Button 
+								x:Name="CalcCommunityStayButton"
+								Style="{StaticResource EmptyButton}"
+								BorderBrush="Transparent" 
+								BorderThickness="0" 
+								Background="Transparent"
+								Click="StayClick"
+								MouseEnter="CommunityStayMouseEnter"
+								MouseLeave="CommunityStayMouseLeave"/>
+						</Grid>
+					</Border>
+
+					<!--<Border Grid.Column="1" x:Name="CalcCommunityPathBorder" Margin="2.5,5,0,0" CornerRadius="10" Background="{StaticResource Primary-Brush}">
+						<Grid>
+							<TextBlock 
+								FontFamily="{StaticResource RobotoLight}"
+								Text="Calculate Paths"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								Effect="{StaticResource DropShadow-L}"/>
+							<Button 
+								x:Name="CalcCommunityPathButton"
+								Style="{StaticResource EmptyButton}"
+								BorderBrush="Transparent" 
+								BorderThickness="0" 
+								Background="Transparent"
+								Click="PathClick"
+								MouseEnter="PathMouseEnter"
+								MouseLeave="PathMouseLeave"/>
+						</Grid>
+					</Border>-->
 
 				</Grid>
 			</Grid>

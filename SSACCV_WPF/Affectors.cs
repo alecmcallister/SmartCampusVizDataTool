@@ -49,7 +49,7 @@ public class Affectors
 
 	/// <summary>
 	/// Time (minutes) before the next datapoint is considered outside of the current bonus calculation.
-	/// Default = 80
+	/// Default = 50
 	/// </summary>
 	public double Stay_TimeDiffCutoff { get; set; } = 50d;
 
@@ -63,7 +63,7 @@ public class Affectors
 	public double Stay_MinAScore { get; set; } = 0.4d;
 
 	public double Stay_MinDuration { get; set; } = 10d;
-	public double Stay_MaxDuration { get; set; } = 6d * 60d;
+	public double Stay_MaxDuration { get; set; } = 24d * 60d;
 
 	/// <summary>
 	/// Minimum number of points (inclusive) in an area to be considered a staypoint group.
@@ -150,4 +150,13 @@ public class Affectors
 
 	#endregion
 
+	#region Community Staypoints
+
+	/// <summary>
+	/// Distance that another staypoint must be within to be considered overlapping.
+	/// Default = 25
+	/// </summary>
+	public double CommunityStay_MaxOverlapDistance { get; set; } = 25d;
+
+	#endregion
 }
