@@ -39,7 +39,6 @@ public class CsvManager
 			{
 				using (CsvReader csv = new CsvReader(sr))
 				{
-					//csv.Configuration.RegisterClassMap(new DataPointMap());
 					csv.Read();
 					csv.ReadHeader();
 					dataPoints = csv.GetRecords<DataPoint>().ToList();

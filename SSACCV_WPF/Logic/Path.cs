@@ -40,9 +40,13 @@ public class Path
 
 	public bool ConditionalAddPoint(DataPoint point)
 	{
-		if (DataPoint.TimeDifference(Contents.Last(), point) < Affectors.Instance.Path_SubsequentPointTimeCutoff &&
-			Contents.Last().DistanceTo(point) > Affectors.Instance.Path_MinSubsequentDistanceThreshold &&
-			Contents.Last().DistanceTo(point) < Affectors.Instance.Path_MaxSubsequentDistanceThreshold)
+		double timeDiff = DataPoint.TimeDifference(Contents.Last(), point);
+		double distanceDiff = Contents.Last().DistanceTo(point);
+
+		if (timeDiff > Affectors.Instance.Path_SubsequentPointTimeThreshold &&
+			timeDiff < Affectors.Instance.Path_SubsequentPointTimeCutoff &&
+			distanceDiff > Affectors.Instance.Path_MinSubsequentDistanceThreshold &&
+			distanceDiff < Affectors.Instance.Path_MaxSubsequentDistanceThreshold)
 		{
 			Contents.Add(point);
 			return true;

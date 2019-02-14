@@ -141,6 +141,13 @@ public class Affectors
 	public double Path_SubsequentPointTimeCutoff { get; set; } = 20d;
 
 	/// <summary>
+	/// Minimum amount of time (minutes) allowed when calculating the contiguity of subsequent points.
+	/// Points occuring before this value will be excluded from the current path.
+	/// Default = 0.5 (30 seconds)
+	/// </summary>
+	public double Path_SubsequentPointTimeThreshold { get; set; } = 0.5d;
+
+	/// <summary>
 	/// Minumum distance (meters?) required when calculating the contiguity of subsequent points.
 	/// Points located closer than this value will be excluded from the current path.
 	/// Default = 2

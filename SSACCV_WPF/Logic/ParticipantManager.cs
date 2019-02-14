@@ -240,8 +240,15 @@ public class ParticipantManager
 		{
 			StaypointOutput spo1 = list[i];
 			StaypointOutput spo2 = list[j != list.Count ? j : i];
+			if (spo1.UserID == spo2.UserID && spo1.StaypointID == spo2.StaypointID)
+			{
+				spo1.StaypointID = id;
+			}
+			else
+			{
+				spo1.StaypointID = id++;
+			}
 
-			spo1.StaypointID = id = id + ((spo1.UserID != spo2.UserID || spo1.StaypointID != spo2.StaypointID) ? 1 : 0);
 			spo1.UserID = spo1.StaypointGroupID = 0;
 		}
 
@@ -253,10 +260,20 @@ public class ParticipantManager
 	{
 		List<List<PathOutput>> grouped = GroupPaths(list);
 		grouped.Sort(Comparer<List<PathOutput>>.Create((po1, po2) => { return po1[0].Date.CompareTo(po2[0].Date); }));
+		List<PathOutput> output = grouped.SelectMany(g => g).ToList();
 
+		for (int i = 0, id = -1; i < output.Count; i++)
+		{
+			PathOutput po1 = output[i];
 
+			if (po1.PathPointID == 0)
+				id++;
 
-		return grouped.SelectMany(l => l).ToList();
+			po1.PathID = id;
+			po1.UserID = 0;
+		}
+
+		return output;
 	}
 
 	List<List<PathOutput>> GroupPaths(List<PathOutput> list)
@@ -265,30 +282,23 @@ public class ParticipantManager
 
 		List<PathOutput> group = new List<PathOutput>();
 
-		for (int i = 0, j = 1; i < list.Count; i++, j++)
+		for (int i = 0; i < list.Count; i++)
 		{
 			PathOutput spo1 = list[i];
-			PathOutput spo2 = j != list.Count ? list[j] : null;
+
+			if (spo1.PathPointID == 0 && group.Count > 0)
+			{
+				output.Add(group.ToList());
+				group.Clear();
+			}
 
 			group.Add(spo1);
-
-			if (spo2 != null)
-			{
-				if (spo1.PathPointID + 1 != spo2.PathPointID)
-				{
-					output.Add(group);
-					group.Clear();
-				}
-			}
-			else
-			{
-				output.Add(group);
-			}
 		}
+
+		output.Add(group.ToList()); // Add the last path
 
 		return output;
 	}
-
 }
 
 public static class ConsoleLog
