@@ -40,8 +40,8 @@ public class Path
 
 	public bool ConditionalAddPoint(DataPoint point)
 	{
-		if (DataPoint.TimeDifference(Contents.Last(), point) < Affectors.Instance.Path_SubsequentPointTimeCutoff && 
-			Contents.Last().DistanceTo(point) > Affectors.Instance.Path_MinSubsequentDistanceThreshold && 
+		if (DataPoint.TimeDifference(Contents.Last(), point) < Affectors.Instance.Path_SubsequentPointTimeCutoff &&
+			Contents.Last().DistanceTo(point) > Affectors.Instance.Path_MinSubsequentDistanceThreshold &&
 			Contents.Last().DistanceTo(point) < Affectors.Instance.Path_MaxSubsequentDistanceThreshold)
 		{
 			Contents.Add(point);
@@ -59,6 +59,8 @@ public class Path
 		{
 			DataPoint point = Contents[i];
 			DataPoint next = j < Contents.Count ? Contents[j] : null;
+			double distanceToNext = next != null ? Vector2.AzimuthDistance(point.location, next.location) : 0;
+			double minutesToNext = next != null ? (next.loct - point.loct).TotalMinutes : 0;
 
 			output.Add(new PathOutput()
 			{
@@ -71,14 +73,15 @@ public class Path
 				BuildingName = point.building_name,
 				Lat = point.lat,
 				Lon = point.lon,
-				DistanceToNextPoint = next != null ? Vector2.AzimuthDistance(point.location, next.location) : 0,
-				MinutesToNextPoint = next != null ? (next.loct - point.loct).TotalMinutes : 0,
+				DistanceToNextPoint = distanceToNext,
+				MinutesToNextPoint = minutesToNext,
 				MaxTemp = point.max_temp,
 				MeanTemp = point.mean_temp,
 				TotalPrecip = point.total_precip,
 				Snow = point.snow,
 				AzimuthPath = Vector2.Azimuth(StartPoint.location, EndPoint.location),
-				AzimuthSegment = next != null ? Vector2.Azimuth(point.location, next.location) : 0d
+				AzimuthSegment = next != null ? Vector2.Azimuth(point.location, next.location) : 0d,
+				Speed = minutesToNext > 0 ? distanceToNext / minutesToNext : 0d
 			});
 		}
 
