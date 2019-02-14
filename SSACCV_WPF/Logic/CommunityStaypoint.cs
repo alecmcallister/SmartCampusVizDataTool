@@ -10,13 +10,14 @@ public class CommunityStaypoint
 	public List<Staypoint> Contents { get; set; } = new List<Staypoint>();
 
 	public Vector2 Location { get; set; }
-	public Vector2 Centroid { get { return Vector2.Centroid(Contents.Select(sp => sp.Location).ToList()); } }
+	public Vector2 Centroid => Vector2.Centroid(Contents.Select(sp => sp.Location).ToList()); 
 
-	//public double CombinedScore => Contents.Sum(sp => sp.)
+	public DateTime Date { get; set; }
 
 	public CommunityStaypoint(Staypoint sp)
 	{
 		ConditionalAddStaypoint(sp);
+		Date = sp.StartDate.Date;
 	}
 
 	public bool ConditionalAddStaypoint(Staypoint sp)

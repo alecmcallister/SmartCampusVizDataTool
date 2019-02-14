@@ -69,15 +69,17 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Affectors.cs" />
+    <Compile Include="Logic\CommunityStaypoint.cs" />
     <Compile Include="Logic\CsvStuff\Converters.cs" />
     <Compile Include="Logic\CsvStuff\CsvManager.cs" />
     <Compile Include="Logic\DataPoint.cs" />
+    <Compile Include="Logic\Output\CommunityStaypointOutput.cs" />
     <Compile Include="Logic\Output\PathOutput.cs" />
     <Compile Include="Logic\Output\StaypointOutput.cs" />
     <Compile Include="Logic\Participant.cs" />
     <Compile Include="Logic\ParticipantManager.cs" />
     <Compile Include="Logic\Path.cs" />
-    <Compile Include="Logic\StayPoint.cs" />
+    <Compile Include="Logic\Staypoint.cs" />
     <Compile Include="Logic\Vector2.cs" />
     <Compile Include="UserControls\AffectorControl.xaml.cs">
       <DependentUpon>AffectorControl.xaml</DependentUpon>

@@ -15,23 +15,14 @@ public class CommunityStaypointOutput : IComparable<CommunityStaypointOutput>
 	[Name("CommunityStaypoint_Group_ID")]
 	public int CommunityStaypointGroupID { get; set; }
 
-	[Name("Loct_Start")]
-	public DateTime StartDate { get; set; }
+	[Name("Loct")]
+	public DateTime Date { get; set; }
 
-	[Name("Loct_End")]
-	public DateTime EndDate { get; set; }
+	[Name("Academic_Day")]
+	public string AcademicDay { get; set; }
 
-	[Name("Academic_Day_Start")]
-	public string AcademicDayStart { get; set; }
-
-	[Name("Academic_Day_End")]
-	public string AcademicDayEnd { get; set; }
-
-	[Name("Duration_minutes")]
-	public double StayDurationMinutes { get; set; }
-
-	//[Name("Building_ID")]
-	//public string BuildingID { get; set; }
+	[Name("Building_ID")]
+	public string BuildingID { get; set; }
 
 	//[Name("Building_Name")]
 	//public string BuildingName { get; set; }
@@ -72,12 +63,6 @@ public class CommunityStaypointOutput : IComparable<CommunityStaypointOutput>
 	[Name("Centroid_Lon")]
 	public decimal CentroidLon { get; set; }
 
-	//[Name("Group_Centroid_Lat")]
-	//public decimal GroupCentroidLat { get; set; }
-
-	//[Name("Group_Centroid_Lon")]
-	//public decimal GroupCentroidLon { get; set; }
-
 	#endregion
 
 	public int CompareTo(CommunityStaypointOutput other)
@@ -88,7 +73,7 @@ public class CommunityStaypointOutput : IComparable<CommunityStaypointOutput>
 			val = CommunityStaypointGroupID.CompareTo(other.CommunityStaypointGroupID);
 
 		if (val == 0)
-			val = StartDate.CompareTo(other.StartDate);
+			val = Date.CompareTo(other.Date);
 
 		return val;
 	}

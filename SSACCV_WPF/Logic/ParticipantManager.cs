@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 /// </summary>
 public class ParticipantManager
 {
+	public bool Anonymize = true;
+
 	/// <summary>
 	/// Dictionary containing all participants (users) in the dataset
 	/// </summary>
@@ -86,7 +88,7 @@ public class ParticipantManager
 
 		ReAssignIDs(sorted);
 
-		return sorted;
+		return AnonymizeStaypointOutput(sorted);
 	}
 
 	void ReAssignIDs(List<StaypointOutput> output)
@@ -147,33 +149,19 @@ public class ParticipantManager
 		{
 			CommunityStaypoint csp = new CommunityStaypoint(group[0]);
 
-			for (int i = 1; i < group.Count; i++)
+			// Separated by date
+
+			bool flag = false;
+
+			foreach (Staypoint sp in group)
+				if (flag |= csp.ConditionalAddStaypoint(sp))
+					break;
+
+			if (flag)
 			{
-				Staypoint sp = group[i];
 
-				if (!csp.ConditionalAddStaypoint(sp))
-				{
-					Vector2 centroid = csp.Centroid;
-
-					// Assign an ID, and add it to the list
-					CommunityStaypointOutput cspo = new CommunityStaypointOutput()
-					{
-						CommunityStaypointID = output.Count,
-						Lat = csp.Location.X,
-						Lon = csp.Location.Y,
-						CentroidLat = centroid.X,
-						CentroidLon = centroid.Y
-					};
-
-				}
 			}
-
-
-
-
 		}
-
-
 
 		return output;
 	}
@@ -218,7 +206,7 @@ public class ParticipantManager
 
 		List<PathOutput> sorted = output.ToList();
 		sorted.Sort();
-		return sorted;
+		return AnonymizePathOutput(sorted);
 	}
 
 	#endregion
@@ -242,6 +230,64 @@ public class ParticipantManager
 	}
 
 	#endregion
+
+
+	List<StaypointOutput> AnonymizeStaypointOutput(List<StaypointOutput> list)
+	{
+		list.Sort(Comparer<StaypointOutput>.Create((spo1, spo2) => { return spo1.StartDate.CompareTo(spo2.StartDate); }));
+
+		for (int i = 0, j = 1, id = 0; i < list.Count; i++, j++)
+		{
+			StaypointOutput spo1 = list[i];
+			StaypointOutput spo2 = list[j != list.Count ? j : i];
+
+			spo1.StaypointID = id = id + ((spo1.UserID != spo2.UserID || spo1.StaypointID != spo2.StaypointID) ? 1 : 0);
+			spo1.UserID = spo1.StaypointGroupID = 0;
+		}
+
+		return list;
+	}
+
+
+	List<PathOutput> AnonymizePathOutput(List<PathOutput> list)
+	{
+		List<List<PathOutput>> grouped = GroupPaths(list);
+		grouped.Sort(Comparer<List<PathOutput>>.Create((po1, po2) => { return po1[0].Date.CompareTo(po2[0].Date); }));
+
+
+
+		return grouped.SelectMany(l => l).ToList();
+	}
+
+	List<List<PathOutput>> GroupPaths(List<PathOutput> list)
+	{
+		List<List<PathOutput>> output = new List<List<PathOutput>>();
+
+		List<PathOutput> group = new List<PathOutput>();
+
+		for (int i = 0, j = 1; i < list.Count; i++, j++)
+		{
+			PathOutput spo1 = list[i];
+			PathOutput spo2 = j != list.Count ? list[j] : null;
+
+			group.Add(spo1);
+
+			if (spo2 != null)
+			{
+				if (spo1.PathPointID + 1 != spo2.PathPointID)
+				{
+					output.Add(group);
+					group.Clear();
+				}
+			}
+			else
+			{
+				output.Add(group);
+			}
+		}
+
+		return output;
+	}
 
 }
 
