@@ -8,8 +8,14 @@
 		MinHeight="400" MinWidth="350"
 		AllowsTransparency="True"
 		WindowStyle="None"
-		Background="Transparent">
+		Background="Transparent"
+		UseLayoutRounding="True"
+		VisualBitmapScalingMode="HighQuality">
 
+	<Window.Resources>
+		
+	</Window.Resources>
+	
 	<WindowChrome.WindowChrome>
 		<WindowChrome ResizeBorderThickness="10"
 					  CaptionHeight="45"
@@ -30,7 +36,7 @@
 				</Grid.RowDefinitions>
 
 				<Grid Grid.Row="0" Width="50" HorizontalAlignment="Left" Panel.ZIndex="3" Effect="{StaticResource DropShadow-L}">
-					<Image Source="SSACCV_Icon.ico" Margin="10"/>
+					<Image RenderOptions.BitmapScalingMode="HighQuality" Source="SSACCV_Icon.ico" Margin="10"/>
 				</Grid>
 
 				<Grid Grid.Row="0" Effect="{StaticResource DropShadow-L}" Panel.ZIndex="2" >
@@ -65,7 +71,7 @@
 
 				<Border Grid.Row="2" Background="{DynamicResource BG-Very-Very-Dark-Brush}" CornerRadius="0,0,10,10">
 					<Grid>
-						<ScrollViewer Margin="0,5" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+						<ScrollViewer Margin="0,5,5,5" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
 							<StackPanel x:Name="AffectorPanel">
 
 								<!-- This is where the properties will go -->

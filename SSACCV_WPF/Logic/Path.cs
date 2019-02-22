@@ -38,6 +38,23 @@ public class Path
 		Contents.Add(start);
 	}
 
+	//public bool ConditionalAddPoint(DataPoint point)
+	//{
+	//	double timeDiff = DataPoint.TimeDifference(Contents.Last(), point);
+	//	double distanceDiff = Contents.Last().DistanceTo(point);
+
+	//	if (timeDiff > Affectors.Instance.Path_SubsequentPointTimeThreshold &&
+	//		timeDiff < Affectors.Instance.Path_SubsequentPointTimeCutoff &&
+	//		distanceDiff > Affectors.Instance.Path_MinSubsequentDistanceThreshold &&
+	//		distanceDiff < Affectors.Instance.Path_MaxSubsequentDistanceThreshold)
+	//	{
+	//		Contents.Add(point);
+	//		return true;
+	//	}
+
+	//	return false;
+	//}
+
 	public bool ConditionalAddPoint(DataPoint point)
 	{
 		double timeDiff = DataPoint.TimeDifference(Contents.Last(), point);
@@ -48,6 +65,17 @@ public class Path
 			distanceDiff > Affectors.Instance.Path_MinSubsequentDistanceThreshold &&
 			distanceDiff < Affectors.Instance.Path_MaxSubsequentDistanceThreshold)
 		{
+			if (Contents.Count > 2)
+			{
+				//bool eq1 = Contents[Contents.Count - 2].location.Equals(point.location);
+				bool eq2 = Contents[Contents.Count - 2].location.EssentiallyEquals(point.location);
+				if (eq2)
+				{
+					Contents.RemoveAt(Contents.Count - 1);
+					return true;
+				}
+			}
+
 			Contents.Add(point);
 			return true;
 		}

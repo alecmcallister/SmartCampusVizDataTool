@@ -14,13 +14,16 @@ public class StaypointOutput : IComparable<StaypointOutput>
 {
 	#region Fields
 
-	[Name("User_ID")]
+	//[Name("User_ID")]
+	[Ignore]
 	public int UserID { get; set; }
 
-	[Name("Staypoint_ID")]
+	//[Name("Staypoint_ID")]
+	[Ignore]
 	public int StaypointID { get; set; }
 
-	[Name("Staypoint_Group_ID")]
+	//[Name("Staypoint_Group_ID")]
+	[Ignore]
 	public int StaypointGroupID { get; set; }
 
 	[Name("Loct_Start")]

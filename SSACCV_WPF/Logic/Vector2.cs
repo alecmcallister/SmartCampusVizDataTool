@@ -189,5 +189,21 @@ public class Vector2
 		return current;
 	}
 
+	public override bool Equals(object obj)
+	{
+		if (obj == null || GetType() != obj.GetType())
+			return false;
+
+		Vector2 vec = (Vector2)obj;
+
+		return X == vec.X && Y == vec.Y;
+	}
+
+	public bool EssentiallyEquals(Vector2 b)
+	{
+		double dist = Affectors.Instance.Path_EssentiallyEqualsDistance;
+		return (Math.Abs((double)(X - b.X)) < dist) && (Math.Abs((double)(Y - b.Y)) < dist);
+	}
+
 	#endregion
 }

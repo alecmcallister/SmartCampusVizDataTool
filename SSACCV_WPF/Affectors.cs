@@ -15,21 +15,18 @@ public class Affectors
 
 	public string GetStaypointIdentityString()
 	{
-		return string.Format("({0}, {1}, {2}, {3})", 
-			(int)Stay_Radius, 
-			(int)Stay_TimeDiffCutoff, 
-			(int)Stay_MinDuration, 
-			Stay_MinGroupCount);
+		return string.Format("({0}, {1}, {2})_ANON",
+			(int)Stay_Radius,
+			(int)Stay_TimeDiffCutoff,
+			(int)Stay_MinDuration);
 	}
-	
+
 	public string GetPathIdentityString()
 	{
-		return string.Format("({0}, {1}, {2}, {3}, {4})", 
-			Path_MinPaths, 
-			Path_MinSegments, 
+		return string.Format("({0}, {1}, {2})_ANON",
+			Path_MinSegments,
 			(int)Path_SubsequentPointTimeCutoff,
-			(int)Path_MinSubsequentDistanceThreshold, 
-			(int)Path_MaxSubsequentDistanceThreshold);
+			(int)Path_MinSubsequentDistanceThreshold);
 	}
 
 	#region Stay Points
@@ -40,7 +37,7 @@ public class Affectors
 	/// Default = 50
 	/// </summary>
 	public double Stay_Radius { get; set; } = 50d;
-	
+
 	/// <summary>
 	/// Should a single point be allowed to be in more than one staypoint?
 	/// Default = false
@@ -121,17 +118,10 @@ public class Affectors
 	#region Paths
 
 	/// <summary>
-	/// Minumum number of paths (inclusive) that a user must have to be included in the final output.
-	/// Users with less than this value will be excluded.
-	/// Default = 0
-	/// </summary>
-	public int Path_MinPaths { get; set; } = 0;
-
-	/// <summary>
 	/// Minumum number of segments (inclusive) a path must have to be valid.
-	/// Default = 2
+	/// Default = 5
 	/// </summary>
-	public int Path_MinSegments { get; set; } = 4;
+	public int Path_MinSegments { get; set; } = 5;
 
 	/// <summary>
 	/// Maximum amount of time (minutes) allowed when calculating the contiguity of subsequent points.
@@ -148,12 +138,27 @@ public class Affectors
 	public double Path_SubsequentPointTimeThreshold { get; set; } = 0.5d;
 
 	/// <summary>
-	/// Minumum distance (meters?) required when calculating the contiguity of subsequent points.
+	/// Minumum distance (meters) required when calculating the contiguity of subsequent points.
 	/// Points located closer than this value will be excluded from the current path.
-	/// Default = 2
+	/// Default = 15m
 	/// </summary>
 	public double Path_MinSubsequentDistanceThreshold { get; set; } = 15d;
+
+	/// <summary>
+	/// Maximum distance (meters) allowed when calculating the contiguity of subsequent points.
+	/// Points located farther than this value will be excluded from the current path.
+	/// Default = 200m
+	/// </summary>
 	public double Path_MaxSubsequentDistanceThreshold { get; set; } = 200d;
+
+	/// <summary>
+	/// An extra bit of wiggle-room when calculating the equality of lat/lon positions.
+	/// Used for removing erroneous points from a path.
+	/// If the path is A -> B -> C, and Abs(A - C) is less than this value (essentially the same point), 
+	/// then both B and C are removed from the path.
+	/// Default = 0.001
+	/// </summary>
+	public double Path_EssentiallyEqualsDistance { get; set; } = 0.001d;
 
 	#endregion
 

@@ -184,20 +184,18 @@ public class ParticipantManager
 
 		ConcurrentBag<PathOutput> output = new ConcurrentBag<PathOutput>();
 
-		Parallel.ForEach(Participants.Values, participant =>
+		Parallel.ForEach(Participants, kvp =>
 		{
+			Participant participant = kvp.Value;
 			participant.CalculatePaths();
 
-			if (participant.Paths.Count >= Affectors.Instance.Path_MinPaths)
+			participant.Paths.ForEach(p =>
 			{
-				participant.Paths.ForEach(p =>
+				p.GetOutput().ForEach(ppo =>
 				{
-					p.GetOutput().ForEach(ppo =>
-					{
-						output.Add(ppo);
-					});
+					output.Add(ppo);
 				});
-			}
+			});
 
 			Interlocked.Increment(ref ConsoleLog.Prog);
 		});

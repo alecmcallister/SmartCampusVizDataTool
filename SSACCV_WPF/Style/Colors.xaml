@@ -2,13 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:SSACCV_WPF">
 
-	<Color x:Key="Primary">#448aff</Color>
+	<Color x:Key="Primary">#ff4444</Color>
 	<SolidColorBrush x:Key="Primary-Brush" Color="{StaticResource Primary}" />
 
-	<Color x:Key="Primary-Light">#83b9ff</Color>
+	<Color x:Key="Primary-Light">#ff6666</Color>
 	<SolidColorBrush x:Key="Primary-Light-Brush" Color="{StaticResource Primary-Light}" />
 
-	<Color x:Key="Primary-Dark">#005ecb</Color>
+	<Color x:Key="Primary-Dark">#992222</Color>
 	<SolidColorBrush x:Key="Primary-Dark-Brush" Color="{StaticResource Primary-Dark}" />
 
 	<Color x:Key="FG">#ffffff</Color>

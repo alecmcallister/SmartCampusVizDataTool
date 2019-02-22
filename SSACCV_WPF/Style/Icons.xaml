@@ -33,6 +33,7 @@
 	<system:String x:Key="DownArrow-Icon">&#xe5cf;</system:String>
 	<system:String x:Key="Fire-Icon">&#xe80e;</system:String>
 	<system:String x:Key="Alert-Icon">&#xe002;</system:String>
+	<system:String x:Key="Reset-Icon">&#xe8ba;</system:String>
 
 
 </ResourceDictionary>
