@@ -57,8 +57,7 @@ public class Participant : IComparable<Participant>
 
 			foreach (Staypoint staypoint in StayPoints)
 				if (flag |= staypoint.ConditionalAddPoint(point))
-					if (!Affectors.Instance.Stay_PointsCanExistInMultipleStayPoints)
-						break;
+					break;
 
 			if (!flag)
 				StayPoints.Add(new Staypoint(point, StayPoints.Count));

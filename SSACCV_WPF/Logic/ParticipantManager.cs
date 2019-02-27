@@ -56,7 +56,7 @@ public class ParticipantManager
 	/// Calculates the participants staypoint groups, and returns them in a list ready to be written to a csv.
 	/// </summary>
 	/// <returns>The list of staypoint groups</returns>
-	public List<StaypointOutput> GetStayPointOutput()
+	public List<StaypointOutput> GetStaypointOutput()
 	{
 		if (!ReadyForCalc)
 			return null;
@@ -88,7 +88,17 @@ public class ParticipantManager
 
 		ReAssignIDs(sorted);
 
-		return AnonymizeStaypointOutput(sorted);
+		return sorted;
+	}
+
+	public List<StaypointOutput_Anon> GetAnonStaypointOutput()
+	{
+		List<StaypointOutput> output = GetStaypointOutput();
+
+		if (output == null)
+			return null;
+
+		return AnonymizeStaypointOutput(output);
 	}
 
 	void ReAssignIDs(List<StaypointOutput> output)
@@ -204,57 +214,31 @@ public class ParticipantManager
 
 		List<PathOutput> sorted = output.ToList();
 		sorted.Sort();
-		return AnonymizePathOutput(sorted);
+		return sorted;
+	}
+
+	public List<PathOutput_Anon> GetAnonPathOutput()
+	{
+		List<PathOutput> output = GetPathOutput();
+
+		if (output == null)
+			return null;
+
+		return AnonymizePathOutput(output);
 	}
 
 	#endregion
 
 	#endregion
 
-	#region Misc participant factoids
-
-	public Participant MostEntries()
-	{
-		return Participants.Values.Aggregate((p1, p2) => p1.Points.Count > p2.Points.Count ? p1 : p2);
-	}
-
-	public Participant MostStayPoints()
-	{
-		return Participants.Values.Aggregate((p1, p2) => p1.StayPoints.Count > p2.StayPoints.Count ? p1 : p2);
-	}
-	public Participant MostPaths()
-	{
-		return Participants.Values.Aggregate((p1, p2) => p1.Paths.Count > p2.Paths.Count ? p1 : p2);
-	}
-
-	#endregion
-
-
-	List<StaypointOutput> AnonymizeStaypointOutput(List<StaypointOutput> list)
+	List<StaypointOutput_Anon> AnonymizeStaypointOutput(List<StaypointOutput> list)
 	{
 		list.Sort(Comparer<StaypointOutput>.Create((spo1, spo2) => { return spo1.StartDate.CompareTo(spo2.StartDate); }));
-
-		for (int i = 0, j = 1, id = 0; i < list.Count; i++, j++)
-		{
-			StaypointOutput spo1 = list[i];
-			StaypointOutput spo2 = list[j != list.Count ? j : i];
-			if (spo1.UserID == spo2.UserID && spo1.StaypointID == spo2.StaypointID)
-			{
-				spo1.StaypointID = id;
-			}
-			else
-			{
-				spo1.StaypointID = id++;
-			}
-
-			spo1.UserID = spo1.StaypointGroupID = 0;
-		}
-
-		return list;
+		
+		return list.Select(sp => new StaypointOutput_Anon(sp)).ToList();
 	}
 
-
-	List<PathOutput> AnonymizePathOutput(List<PathOutput> list)
+	List<PathOutput_Anon> AnonymizePathOutput(List<PathOutput> list)
 	{
 		List<List<PathOutput>> grouped = GroupPaths(list);
 		grouped.Sort(Comparer<List<PathOutput>>.Create((po1, po2) => { return po1[0].Date.CompareTo(po2[0].Date); }));
@@ -271,7 +255,7 @@ public class ParticipantManager
 			po1.UserID = 0;
 		}
 
-		return output;
+		return output.Select(po => new PathOutput_Anon(po)).ToList();
 	}
 
 	List<List<PathOutput>> GroupPaths(List<PathOutput> list)

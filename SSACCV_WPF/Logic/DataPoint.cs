@@ -109,3 +109,15 @@ public class DataPoint : IComparable<DataPoint>
 
 	#endregion
 }
+
+public class Something
+{
+	public int field { get; set; }
+
+	public double dooble { get; set; }
+
+	public void DoSomething()
+	{
+
+	}
+}

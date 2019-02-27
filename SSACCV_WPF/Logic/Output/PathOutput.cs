@@ -13,7 +13,7 @@ public class PathOutput : IComparable<PathOutput>
 {
 	#region Fields
 
-	[Ignore]
+	[Name("User_ID")]
 	public int UserID { get; set; }
 
 	[Name("Path_ID")]
@@ -83,12 +83,9 @@ public class PathOutput : IComparable<PathOutput>
 	}
 }
 
-public class PathOutputAnon : IComparable<PathOutputAnon>
+public class PathOutput_Anon : IComparable<PathOutput_Anon>
 {
 	#region Fields
-
-	[Ignore]
-	public int UserID { get; set; }
 
 	[Name("Path_ID")]
 	public int PathID { get; set; }
@@ -143,12 +140,30 @@ public class PathOutputAnon : IComparable<PathOutputAnon>
 
 	#endregion
 
-	public int CompareTo(PathOutputAnon other)
+	public PathOutput_Anon(PathOutput p)
 	{
-		int val = UserID.CompareTo(other.UserID);
+		PathID = p.PathID;
+		PathPointID = p.PathPointID;
+		Date = p.Date;
+		AcademicDay = p.AcademicDay;
+		BuildingID = p.BuildingID;
+		BuildingName = p.BuildingName;
+		Lat = p.Lat;
+		Lon = p.Lon;
+		DistanceToNextPoint = p.DistanceToNextPoint;
+		MinutesToNextPoint = p.MinutesToNextPoint;
+		MaxTemp = p.MaxTemp;
+		MeanTemp = p.MeanTemp;
+		TotalPrecip = p.TotalPrecip;
+		Snow = p.Snow;
+		AzimuthPath = p.AzimuthPath;
+		AzimuthSegment = p.AzimuthSegment;
+		Speed = p.Speed;
+	}
 
-		if (val == 0)
-			val = PathID.CompareTo(other.PathID);
+	public int CompareTo(PathOutput_Anon other)
+	{
+		int val = PathID.CompareTo(other.PathID);
 
 		if (val == 0)
 			val = PathPointID.CompareTo(other.PathPointID);

@@ -14,16 +14,13 @@ public class StaypointOutput : IComparable<StaypointOutput>
 {
 	#region Fields
 
-	//[Name("User_ID")]
-	[Ignore]
+	[Name("User_ID")]
 	public int UserID { get; set; }
 
-	//[Name("Staypoint_ID")]
-	[Ignore]
+	[Name("Staypoint_ID")]
 	public int StaypointID { get; set; }
 
-	//[Name("Staypoint_Group_ID")]
-	[Ignore]
+	[Name("Staypoint_Group_ID")]
 	public int StaypointGroupID { get; set; }
 
 	[Name("Loct_Start")]
@@ -105,5 +102,97 @@ public class StaypointOutput : IComparable<StaypointOutput>
 			val = StartDate.CompareTo(other.StartDate);
 
 		return val;
+	}
+}
+
+public class StaypointOutput_Anon : IComparable<StaypointOutput_Anon>
+{
+	#region Fields
+
+	[Name("Loct_Start")]
+	public DateTime StartDate { get; set; }
+
+	[Name("Loct_End")]
+	public DateTime EndDate { get; set; }
+
+	[Name("Academic_Day_Start")]
+	public string AcademicDayStart { get; set; }
+
+	[Name("Academic_Day_End")]
+	public string AcademicDayEnd { get; set; }
+
+	[Name("Duration_minutes")]
+	public double StayDurationMinutes { get; set; }
+
+	[Name("Building_ID")]
+	public string BuildingID { get; set; }
+
+	[Name("Building_Name")]
+	public string BuildingName { get; set; }
+
+	[Name("Lat")]
+	public decimal Lat { get; set; }
+
+	[Name("Lon")]
+	public decimal Lon { get; set; }
+
+	[Name("Max_Temp_C")]
+	public double MaxTemp { get; set; }
+
+	[Name("Mean_Temp_C")]
+	public double MeanTemp { get; set; }
+
+	[Name("Total_Precip_mm")]
+	public double TotalPrecip { get; set; }
+
+	[Name("Snow_cm")]
+	public int Snow { get; set; }
+
+	[Name("Q_Score")]
+	public double QuantityScore { get; set; }
+
+	[Name("T_Score")]
+	public double TemporalScore { get; set; }
+
+	[Name("A_Score")]
+	public double AccuracyScore { get; set; }
+
+	[Name("Combined_Score")]
+	public double CombinedScore { get; set; }
+
+	[Name("Centroid_Lat")]
+	public decimal CentroidLat { get; set; }
+
+	[Name("Centroid_Lon")]
+	public decimal CentroidLon { get; set; }
+
+	#endregion
+
+	public StaypointOutput_Anon(StaypointOutput sp)
+	{
+		StartDate = sp.StartDate;
+		EndDate = sp.EndDate;
+		AcademicDayStart = sp.AcademicDayStart;
+		AcademicDayEnd = sp.AcademicDayEnd;
+		StayDurationMinutes = sp.StayDurationMinutes;
+		BuildingID = sp.BuildingID;
+		BuildingName = sp.BuildingName;
+		Lat = sp.Lat;
+		Lon = sp.Lon;
+		MaxTemp = sp.MaxTemp;
+		MeanTemp = sp.MeanTemp;
+		TotalPrecip = sp.TotalPrecip;
+		Snow = sp.Snow;
+		QuantityScore = sp.QuantityScore;
+		TemporalScore = sp.TemporalScore;
+		AccuracyScore = sp.AccuracyScore;
+		CombinedScore = sp.CombinedScore;
+		CentroidLat = sp.CentroidLat;
+		CentroidLon = sp.CentroidLon;
+	}
+
+	public int CompareTo(StaypointOutput_Anon other)
+	{
+		return StartDate.CompareTo(other.StartDate);
 	}
 }

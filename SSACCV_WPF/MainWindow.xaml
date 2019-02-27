@@ -133,45 +133,45 @@
 						<ColumnDefinition Width="*"/>
 					</Grid.ColumnDefinitions>
 
-					<Border Grid.Column="0" x:Name="CalcCommunityStayBorder" Margin="0,5,2.5,0" CornerRadius="10" Background="{StaticResource Primary-Brush}">
+					<Border Grid.Column="0" x:Name="AnonStayBorder" Margin="0,5,2.5,0" CornerRadius="10" Background="{StaticResource Primary-Brush}">
 						<Grid>
 							<TextBlock 
 								FontFamily="{StaticResource RobotoLight}"
-								Text="Community Staypoints"
+								Text="Anon Staypoints"
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"
 								Effect="{StaticResource DropShadow-L}"/>
 							<Button 
-								x:Name="CalcCommunityStayButton"
+								x:Name="CalcAnonStayButton"
 								Style="{StaticResource EmptyButton}"
 								BorderBrush="Transparent" 
 								BorderThickness="0" 
 								Background="Transparent"
-								Click="StayClick"
-								MouseEnter="CommunityStayMouseEnter"
-								MouseLeave="CommunityStayMouseLeave"/>
+								Click="AnonStayClick"
+								MouseEnter="AnonStayMouseEnter"
+								MouseLeave="AnonStayMouseLeave"/>
 						</Grid>
 					</Border>
 
-					<!--<Border Grid.Column="1" x:Name="CalcCommunityPathBorder" Margin="2.5,5,0,0" CornerRadius="10" Background="{StaticResource Primary-Brush}">
+					<Border Grid.Column="1" x:Name="CalcAnonPathBorder" Margin="2.5,5,0,0" CornerRadius="10" Background="{StaticResource Primary-Brush}">
 						<Grid>
 							<TextBlock 
 								FontFamily="{StaticResource RobotoLight}"
-								Text="Calculate Paths"
+								Text="Anon Paths"
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"
 								Effect="{StaticResource DropShadow-L}"/>
 							<Button 
-								x:Name="CalcCommunityPathButton"
+								x:Name="CalcAnonPathButton"
 								Style="{StaticResource EmptyButton}"
 								BorderBrush="Transparent" 
 								BorderThickness="0" 
 								Background="Transparent"
-								Click="PathClick"
-								MouseEnter="PathMouseEnter"
-								MouseLeave="PathMouseLeave"/>
+								Click="AnonPathClick"
+								MouseEnter="AnonPathMouseEnter"
+								MouseLeave="AnonPathMouseLeave"/>
 						</Grid>
-					</Border>-->
+					</Border>
 
 				</Grid>
 			</Grid>

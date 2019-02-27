@@ -45,9 +45,9 @@ namespace SSACCV_WPF
 			InputFilePath.HeaderLabel.Text = "Input file:";
 			InputFilePath.LoadRequested += LoadData;
 
-			CalcPathButton.IsEnabled = CalcStayButton.IsEnabled = CalcCommunityStayButton.IsEnabled = false;
+			CalcPathButton.IsEnabled = CalcStayButton.IsEnabled = CalcAnonStayButton.IsEnabled = CalcAnonPathButton.IsEnabled = false;
 
-			CsvManager.BusyChanged += b => { CalcPathButton.IsEnabled = CalcStayButton.IsEnabled = !b; };
+			CsvManager.BusyChanged += b => { CalcPathButton.IsEnabled = CalcStayButton.IsEnabled = CalcAnonStayButton.IsEnabled = CalcAnonPathButton.IsEnabled = !b; };
 		}
 
 		public void SetOpacity(double opacity)
@@ -115,7 +115,7 @@ namespace SSACCV_WPF
 				{
 					path = dialog.FileName;
 
-					csvManager.Write(path, participantManager.GetStayPointOutput());
+					csvManager.Write(path, participantManager.GetStaypointOutput());
 				}
 			}
 			catch
@@ -138,9 +138,9 @@ namespace SSACCV_WPF
 
 		#endregion
 
-		#region Community Staypoint button
+		#region Anon Staypoint button
 
-		void CommunityStayClick(object sender, RoutedEventArgs e)
+		void AnonStayClick(object sender, RoutedEventArgs e)
 		{
 			if (!participantManager.ReadyForCalc)
 				return;
@@ -151,32 +151,32 @@ namespace SSACCV_WPF
 			{
 				SaveFileDialog dialog = new SaveFileDialog();
 				dialog.Filter = "CSV (*.csv)|*.csv";
-				dialog.FileName = "CommunityStaypoints_" + DateTime.Today.Date.ToString("MMMdd") + ".csv";
+				dialog.FileName = "Staypoints_" + DateTime.Today.Date.ToString("MMMdd") + "_" + Affectors.Instance.GetStaypointIdentityString() + "_ANON.csv";
 				string path = "";
 
 				if (dialog.ShowDialog() == true)
 				{
 					path = dialog.FileName;
 
-					csvManager.Write(path, participantManager.GetCommunityStayPointOutput() ?? new List<CommunityStaypointOutput>());
+					csvManager.Write(path, participantManager.GetAnonStaypointOutput());
 				}
 			}
 			catch
 			{
-				Console.Error.WriteLine("Error calculating community staypoints.");
+				Console.Error.WriteLine("Error calculating anon staypoints.");
 			}
 
 			Opacity = 1d;
 		}
 
-		void CommunityStayMouseEnter(object sender, MouseEventArgs e)
+		void AnonStayMouseEnter(object sender, MouseEventArgs e)
 		{
-			CalcCommunityStayBorder.Background = (Brush)TryFindResource("Primary-Dark-Brush");
+			AnonStayBorder.Background = (Brush)TryFindResource("Primary-Dark-Brush");
 		}
 
-		void CommunityStayMouseLeave(object sender, MouseEventArgs e)
+		void AnonStayMouseLeave(object sender, MouseEventArgs e)
 		{
-			CalcCommunityStayBorder.Background = (Brush)TryFindResource("Primary-Brush");
+			AnonStayBorder.Background = (Brush)TryFindResource("Primary-Brush");
 		}
 
 		#endregion
@@ -220,6 +220,49 @@ namespace SSACCV_WPF
 		void PathMouseLeave(object sender, MouseEventArgs e)
 		{
 			CalcPathBorder.Background = (Brush)TryFindResource("Primary-Brush");
+		}
+
+		#endregion
+
+		#region Anon Path button
+
+		void AnonPathClick(object sender, RoutedEventArgs e)
+		{
+			if (!participantManager.ReadyForCalc)
+				return;
+
+			Opacity = 0.5d;
+
+			try
+			{
+				SaveFileDialog dialog = new SaveFileDialog();
+				dialog.Filter = "CSV (*.csv)|*.csv";
+				dialog.FileName = "Paths_" + DateTime.Today.Date.ToString("MMMdd") + "_" + Affectors.Instance.GetPathIdentityString() + "_ANON.csv";
+				string path = "";
+
+				if (dialog.ShowDialog() == true)
+				{
+					path = dialog.FileName;
+
+					csvManager.Write(path, participantManager.GetAnonPathOutput());
+				}
+			}
+			catch
+			{
+				Console.Error.WriteLine("Error calculating anon paths.");
+			}
+
+			Opacity = 1d;
+		}
+
+		void AnonPathMouseEnter(object sender, MouseEventArgs e)
+		{
+			CalcAnonPathBorder.Background = (Brush)TryFindResource("Primary-Dark-Brush");
+		}
+
+		void AnonPathMouseLeave(object sender, MouseEventArgs e)
+		{
+			CalcAnonPathBorder.Background = (Brush)TryFindResource("Primary-Brush");
 		}
 
 		#endregion

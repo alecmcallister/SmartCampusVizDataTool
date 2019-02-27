@@ -60,14 +60,13 @@ public class Path
 		double timeDiff = DataPoint.TimeDifference(Contents.Last(), point);
 		double distanceDiff = Contents.Last().DistanceTo(point);
 
-		if (timeDiff > Affectors.Instance.Path_SubsequentPointTimeThreshold &&
-			timeDiff < Affectors.Instance.Path_SubsequentPointTimeCutoff &&
-			distanceDiff > Affectors.Instance.Path_MinSubsequentDistanceThreshold &&
-			distanceDiff < Affectors.Instance.Path_MaxSubsequentDistanceThreshold)
+		if (timeDiff > Affectors.Instance.Path_MinSubsequentTime &&
+			timeDiff < Affectors.Instance.Path_MaxSubsequentTime &&
+			distanceDiff > Affectors.Instance.Path_MinSubsequentDistance &&
+			distanceDiff < Affectors.Instance.Path_MaxSubsequentDistance)
 		{
 			if (Contents.Count > 2)
 			{
-				//bool eq1 = Contents[Contents.Count - 2].location.Equals(point.location);
 				bool eq2 = Contents[Contents.Count - 2].location.EssentiallyEquals(point.location);
 				if (eq2)
 				{

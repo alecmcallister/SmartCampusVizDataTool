@@ -15,18 +15,20 @@ public class Affectors
 
 	public string GetStaypointIdentityString()
 	{
-		return string.Format("({0}, {1}, {2})_ANON",
+		return string.Format("(Radius {0}, Cutoff {1}, MinDuration {2}, MaxDuration {3})",
 			(int)Stay_Radius,
 			(int)Stay_TimeDiffCutoff,
-			(int)Stay_MinDuration);
+			(int)Stay_MinDuration,
+			(int)Stay_MaxDuration);
 	}
 
 	public string GetPathIdentityString()
 	{
-		return string.Format("({0}, {1}, {2})_ANON",
+		return string.Format("(MinSegments {0}, MaxTime {1}, MinDist {2}, MaxDist {3})",
 			Path_MinSegments,
-			(int)Path_SubsequentPointTimeCutoff,
-			(int)Path_MinSubsequentDistanceThreshold);
+			(int)Path_MaxSubsequentTime,
+			(int)Path_MinSubsequentDistance,
+			(int)Path_MaxSubsequentDistance);
 	}
 
 	#region Stay Points
@@ -37,12 +39,6 @@ public class Affectors
 	/// Default = 50
 	/// </summary>
 	public double Stay_Radius { get; set; } = 50d;
-
-	/// <summary>
-	/// Should a single point be allowed to be in more than one staypoint?
-	/// Default = false
-	/// </summary>
-	public bool Stay_PointsCanExistInMultipleStayPoints = false;
 
 	/// <summary>
 	/// Time (minutes) before the next datapoint is considered outside of the current bonus calculation.
@@ -124,32 +120,32 @@ public class Affectors
 	public int Path_MinSegments { get; set; } = 5;
 
 	/// <summary>
-	/// Maximum amount of time (minutes) allowed when calculating the contiguity of subsequent points.
-	/// Points occuring later than this value will be excluded from the current path.
-	/// Default = 20
-	/// </summary>
-	public double Path_SubsequentPointTimeCutoff { get; set; } = 20d;
-
-	/// <summary>
 	/// Minimum amount of time (minutes) allowed when calculating the contiguity of subsequent points.
 	/// Points occuring before this value will be excluded from the current path.
 	/// Default = 0.5 (30 seconds)
 	/// </summary>
-	public double Path_SubsequentPointTimeThreshold { get; set; } = 0.5d;
+	public double Path_MinSubsequentTime { get; set; } = 0.5d;
+
+	/// <summary>
+	/// Maximum amount of time (minutes) allowed when calculating the contiguity of subsequent points.
+	/// Points occuring later than this value will be excluded from the current path.
+	/// Default = 20
+	/// </summary>
+	public double Path_MaxSubsequentTime { get; set; } = 20d;
 
 	/// <summary>
 	/// Minumum distance (meters) required when calculating the contiguity of subsequent points.
 	/// Points located closer than this value will be excluded from the current path.
 	/// Default = 15m
 	/// </summary>
-	public double Path_MinSubsequentDistanceThreshold { get; set; } = 15d;
+	public double Path_MinSubsequentDistance { get; set; } = 15d;
 
 	/// <summary>
 	/// Maximum distance (meters) allowed when calculating the contiguity of subsequent points.
 	/// Points located farther than this value will be excluded from the current path.
 	/// Default = 200m
 	/// </summary>
-	public double Path_MaxSubsequentDistanceThreshold { get; set; } = 200d;
+	public double Path_MaxSubsequentDistance { get; set; } = 200d;
 
 	/// <summary>
 	/// An extra bit of wiggle-room when calculating the equality of lat/lon positions.
