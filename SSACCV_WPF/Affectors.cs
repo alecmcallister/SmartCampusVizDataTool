@@ -15,7 +15,7 @@ public class Affectors
 
 	public string GetStaypointIdentityString()
 	{
-		return string.Format("(Radius {0}, Cutoff {1}, MinDuration {2}, MaxDuration {3})",
+		return string.Format("(Radius{0}_Cutoff{1}_MinDuration{2}_MaxDuration{3})",
 			(int)Stay_Radius,
 			(int)Stay_TimeDiffCutoff,
 			(int)Stay_MinDuration,
@@ -24,7 +24,7 @@ public class Affectors
 
 	public string GetPathIdentityString()
 	{
-		return string.Format("(MinSegments {0}, MaxTime {1}, MinDist {2}, MaxDist {3})",
+		return string.Format("(MinSegments{0}_MaxTime{1}_MinDist{2}_MaxDist{3})",
 			Path_MinSegments,
 			(int)Path_MaxSubsequentTime,
 			(int)Path_MinSubsequentDistance,
