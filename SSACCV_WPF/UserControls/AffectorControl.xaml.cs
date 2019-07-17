@@ -25,6 +25,7 @@ namespace SSACCV_WPF
 			InitializeComponent();
 		}
 
+
 		public AffectorControl(string affectorName, double defaultValue, PropertyInfo property)
 		{
 			InitializeComponent();

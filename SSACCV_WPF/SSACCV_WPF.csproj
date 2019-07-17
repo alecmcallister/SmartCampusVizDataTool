@@ -72,11 +72,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Affectors.cs" />
-    <Compile Include="Logic\CommunityStaypoint.cs" />
+    <Compile Include="ConsoleLog.cs" />
     <Compile Include="Logic\CsvStuff\Converters.cs" />
     <Compile Include="Logic\CsvStuff\CsvManager.cs" />
     <Compile Include="Logic\DataPoint.cs" />
-    <Compile Include="Logic\Output\CommunityStaypointOutput.cs" />
     <Compile Include="Logic\Output\PathOutput.cs" />
     <Compile Include="Logic\Output\StaypointOutput.cs" />
     <Compile Include="Logic\Participant.cs" />

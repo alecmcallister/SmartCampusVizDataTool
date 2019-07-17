@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:SSACCV_WPF">
 
-	<Color x:Key="Primary">#ff4444</Color>
+	<Color x:Key="Primary">#44bbbb</Color>
 	<SolidColorBrush x:Key="Primary-Brush" Color="{StaticResource Primary}" />
 
 	<Color x:Key="Primary-Light">#ff6666</Color>

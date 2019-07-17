@@ -35,6 +35,13 @@ public class Participant : IComparable<Participant>
 		Points.Add(point);
 	}
 
+	public void CleanPoints()
+	{
+		List<DataPoint> points = Points.ToList();
+		points.Sort();
+		Points = new ConcurrentBag<DataPoint>(points);
+	}
+
 	#endregion
 
 	#region Staypoints

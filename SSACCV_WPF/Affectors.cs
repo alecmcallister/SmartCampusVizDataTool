@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 /// <summary>
 /// Class that controls the various parameters affecting the calculation of staypoints, paths, etc.
@@ -12,7 +8,12 @@ public class Affectors
 	public static Affectors Instance;
 
 	public delegate double Scale(double val);
+	public delegate bool Verify(double val);
 
+	/// <summary>
+	/// The string we append to the end of the calculated staypoint csv file.
+	/// </summary>
+	/// <returns>The (partial) list of affectors that were used when calculating staypoints.</returns>
 	public string GetStaypointIdentityString()
 	{
 		return string.Format("(Radius{0}_Cutoff{1}_MinDuration{2}_MaxDuration{3})",
@@ -22,6 +23,10 @@ public class Affectors
 			(int)Stay_MaxDuration);
 	}
 
+	/// <summary>
+	/// The string we append to the end of the calculated path csv file.
+	/// </summary>
+	/// <returns>The (partial) list of affectors that were used when calculating paths.</returns>
 	public string GetPathIdentityString()
 	{
 		return string.Format("(MinSegments{0}_MaxTime{1}_MinDist{2}_MaxDist{3})",
@@ -48,14 +53,43 @@ public class Affectors
 
 	#region Score filtering
 
-	public delegate bool Verify(double val);
+	/// <summary>
+	/// Used to verify staypoint group accuracy scores.
+	/// Returns true if [ score &gt;= <see cref="Stay_MinAScore"/> ]
+	/// </summary>
 	public Verify aVerify = a => a >= Instance.Stay_MinAScore;
+
+	/// <summary>
+	/// Used to verify staypoint group durations.
+	/// Returns true if [ <see cref="Stay_MinDuration"/> &lt;= duration &lt;= <see cref="Stay_MaxDuration"/> ]
+	/// </summary>
 	public Verify durationVerify = d => d >= Instance.Stay_MinDuration && d <= Instance.Stay_MaxDuration;
+
+	/// <summary>
+	/// Used to verify staypoint groups have enough points.
+	/// Returns true if [ count &gt;= <see cref="Stay_MinGroupCount"/> ]
+	/// </summary>
 	public Verify countVerify = c => c >= Instance.Stay_MinGroupCount;
 
+	/// <summary>
+	/// The minimum allowable accuracy score for each staypoint group.
+	/// Groups with scores lower than this number will be excluded from the final output.
+	/// Default = 0.4
+	/// </summary>
 	public double Stay_MinAScore { get; set; } = 0.4d;
 
+	/// <summary>
+	/// The minimum duration (minutes from first point to last point) for each staypoint group.
+	/// Groups with durations lower than this number will be excluded from the final output.
+	/// Default = 10
+	/// </summary>
 	public double Stay_MinDuration { get; set; } = 10d;
+
+	/// <summary>
+	/// The maximum duration (minutes from first point to last point) for each staypoint group.
+	/// Groups with durations higher than this number will be excluded from the final output.
+	/// Default = 1440 (24hrs)
+	/// </summary>
 	public double Stay_MaxDuration { get; set; } = 24d * 60d;
 
 	/// <summary>
@@ -75,7 +109,8 @@ public class Affectors
 	public double Stay_QuantityWeight { get; set; } = 1d;
 
 	/// <summary>
-	/// Logarithmic scale for time.
+	/// The scale used when calculating quantity scores.
+	/// Default: Math.Log
 	/// </summary>
 	public Scale QuantityScale = Math.Log;
 
@@ -90,7 +125,8 @@ public class Affectors
 	public double Stay_TemporalWeight { get; set; } = 20d;
 
 	/// <summary>
-	/// Logarithmic scale for time.
+	/// The scale used when calculating temporal scores.
+	/// Default: Math.Log
 	/// </summary>
 	public Scale TemporalScale = Math.Log;
 
@@ -105,6 +141,11 @@ public class Affectors
 	/// Default = 20
 	/// </summary>
 	public double Stay_AccuracyGoal { get; set; } = 20d;
+
+	/// <summary>
+	/// The maximum possible accuracy score.
+	/// Default = 1.25
+	/// </summary>
 	public double Stay_AScoreCeiling { get; set; } = 1.25d;
 
 	#endregion
@@ -158,13 +199,4 @@ public class Affectors
 
 	#endregion
 
-	#region Community Staypoints
-
-	/// <summary>
-	/// Distance that another staypoint must be within to be considered overlapping.
-	/// Default = 25
-	/// </summary>
-	public double CommunityStay_MaxOverlapDistance { get; set; } = 25d;
-
-	#endregion
 }

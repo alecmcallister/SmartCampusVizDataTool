@@ -38,26 +38,9 @@ public class Path
 		Contents.Add(start);
 	}
 
-	//public bool ConditionalAddPoint(DataPoint point)
-	//{
-	//	double timeDiff = DataPoint.TimeDifference(Contents.Last(), point);
-	//	double distanceDiff = Contents.Last().DistanceTo(point);
-
-	//	if (timeDiff > Affectors.Instance.Path_SubsequentPointTimeThreshold &&
-	//		timeDiff < Affectors.Instance.Path_SubsequentPointTimeCutoff &&
-	//		distanceDiff > Affectors.Instance.Path_MinSubsequentDistanceThreshold &&
-	//		distanceDiff < Affectors.Instance.Path_MaxSubsequentDistanceThreshold)
-	//	{
-	//		Contents.Add(point);
-	//		return true;
-	//	}
-
-	//	return false;
-	//}
-
 	public bool ConditionalAddPoint(DataPoint point)
 	{
-		double timeDiff = DataPoint.TimeDifference(Contents.Last(), point);
+		double timeDiff = Contents.Last().TimeDifference(point);
 		double distanceDiff = Contents.Last().DistanceTo(point);
 
 		if (timeDiff > Affectors.Instance.Path_MinSubsequentTime &&
@@ -93,26 +76,30 @@ public class Path
 			double distanceToNext = next != null ? Vector2.AzimuthDistance(point.location, next.location) : 0;
 			double minutesToNext = next != null ? (next.loct - point.loct).TotalMinutes : 0;
 
+			double minutesFromLast = (i > 0) ? output.Last().MinutesToNextPoint : 0;
+
 			output.Add(new PathOutput()
 			{
 				UserID = UserID,
 				PathID = PathID,
 				PathPointID = i,
-				Date = point.loct,
+				//Date = point.loct,
+				VerboseDate = point.loct,
 				AcademicDay = point.academic_day,
 				BuildingID = point.building_id,
 				BuildingName = point.building_name,
 				Lat = point.lat,
 				Lon = point.lon,
-				DistanceToNextPoint = distanceToNext,
-				MinutesToNextPoint = minutesToNext,
-				MaxTemp = point.max_temp,
-				MeanTemp = point.mean_temp,
-				TotalPrecip = point.total_precip,
+				DistanceToNextPoint = (float)distanceToNext,
+				MinutesToNextPoint = (float)minutesToNext,
+				MinutesFromLast = (float)minutesFromLast,
+				MaxTemp = (float)point.max_temp,
+				MeanTemp = (float)point.mean_temp,
+				TotalPrecip = (float)point.total_precip,
 				Snow = point.snow,
-				AzimuthPath = Vector2.Azimuth(StartPoint.location, EndPoint.location),
-				AzimuthSegment = next != null ? Vector2.Azimuth(point.location, next.location) : 0d,
-				Speed = minutesToNext > 0 ? distanceToNext / minutesToNext : 0d
+				AzimuthPath = (float)Vector2.Azimuth(StartPoint.location, EndPoint.location),
+				AzimuthSegment = next != null ? (float)Vector2.Azimuth(point.location, next.location) : 0f,
+				Speed = minutesToNext > 0 ? (float)(distanceToNext / minutesToNext) : 0f
 			});
 		}
 

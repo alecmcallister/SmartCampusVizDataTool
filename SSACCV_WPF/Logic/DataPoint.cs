@@ -87,14 +87,13 @@ public class DataPoint : IComparable<DataPoint>
 	#region Helpers
 
 	/// <summary>
-	/// Get the time period between points <paramref name="a"/> and <paramref name="b"/>
+	/// Get the time period between this point, and <paramref name="b"/>
 	/// </summary>
-	/// <param name="a">Start point (earlier time)</param>
 	/// <param name="b">End point (later time)</param>
 	/// <returns>The total time (in minutes) between a.datetime_start and b.datetime_start</returns>
-	public static double TimeDifference(DataPoint a, DataPoint b)
+	public double TimeDifference(DataPoint b)
 	{
-		return (b.loct - a.loct).TotalMinutes;
+		return (b.loct - loct).TotalMinutes;
 	}
 
 	/// <summary>
@@ -108,16 +107,4 @@ public class DataPoint : IComparable<DataPoint>
 	}
 
 	#endregion
-}
-
-public class Something
-{
-	public int field { get; set; }
-
-	public double dooble { get; set; }
-
-	public void DoSomething()
-	{
-
-	}
 }

@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CsvHelper.Configuration.Attributes;
 
 /// <summary>
 /// Abstract representation of a popular staying location for a user.
@@ -19,8 +16,10 @@ public class Staypoint
 
 	public int UserID { get; set; }
 	public int StayPointID { get; set; }
+
 	public string BuildingID { get; set; }
 	public string BuildingName { get; set; }
+
 	public Vector2 Location { get; set; }
 	public Vector2 Centroid => Vector2.Centroid(Contents.Select(p => p.location).ToList());
 
@@ -51,6 +50,7 @@ public class Staypoint
 	/// <returns>True if the point was added, false otherwise</returns>
 	public bool ConditionalAddPoint(DataPoint point)
 	{
+		// This is currently the only metric we use to place points
 		if (OverlapsPoint(point))
 		{
 			Contents.Add(point);
@@ -94,21 +94,19 @@ public class Staypoint
 			{
 				DataPoint first = tempGroup.First();
 				DataPoint last = tempGroup.Last();
-				DateTime startDate = first.loct;
-				DateTime endDate = last.loct;
 
-				double duration = (endDate - startDate).TotalMinutes;
-
-				double qScore = CalculateQuantityScoreOfGroup(tempGroup);
-				double tScore = CalculateTemporalScoreOfGroup(tempGroup);
 				double aScore = CalculateAccuracyScoreOfGroup(tempGroup);
-				double cScore = qScore * tScore * aScore;
+				double duration = (last.loct - first.loct).TotalMinutes;
 
 				// Filter based on score
 				bool addToOutput = FilterScore(aScore, duration, tempGroup.Count);
 
 				if (addToOutput)
 				{
+					double qScore = CalculateQuantityScoreOfGroup(tempGroup);
+					double tScore = CalculateTemporalScoreOfGroup(tempGroup);
+					double cScore = qScore * tScore * aScore;
+
 					Vector2 groupCentroid = Vector2.Centroid(tempGroup.Select(p => p.location).ToList());
 
 					StaypointOutput spaghetti = new StaypointOutput()
@@ -116,23 +114,23 @@ public class Staypoint
 						UserID = UserID,
 						StaypointID = StayPointID,
 						StaypointGroupID = output.Count,
-						StartDate = startDate,
-						EndDate = endDate,
-						StayDurationMinutes = duration,
+						StartDate = first.loct,
+						EndDate = last.loct,
+						StayDurationMinutes = (float)duration,
 						AcademicDayStart = first.academic_day,
 						AcademicDayEnd = last.academic_day,
 						BuildingID = BuildingID,
 						BuildingName = BuildingName,
 						Lat = Location.X,
 						Lon = Location.Y,
-						MaxTemp = tempGroup.Average(p => p.max_temp),
-						MeanTemp = tempGroup.Average(p => p.mean_temp),
-						TotalPrecip = tempGroup.Average(p => p.total_precip),
+						MaxTemp = (float)tempGroup.Average(p => p.max_temp),
+						MeanTemp = (float)tempGroup.Average(p => p.mean_temp),
+						TotalPrecip = (float)tempGroup.Average(p => p.total_precip),
 						Snow = (int)tempGroup.Average(p => p.snow),
-						QuantityScore = qScore,
-						TemporalScore = tScore,
-						AccuracyScore = aScore,
-						CombinedScore = cScore,
+						QuantityScore = (float)qScore,
+						TemporalScore = (float)tScore,
+						AccuracyScore = (float)aScore,
+						CombinedScore = (float)cScore,
 						CentroidLat = centroid.X,
 						CentroidLon = centroid.Y,
 						GroupCentroidLat = groupCentroid.X,
@@ -141,6 +139,7 @@ public class Staypoint
 
 					output.Add(spaghetti);
 				}
+
 				tempGroup.Clear();
 			}
 		}
@@ -148,6 +147,13 @@ public class Staypoint
 		return output;
 	}
 
+	/// <summary>
+	/// Filters out staypoint groups under the accuracy score threshold, under the duration threshold, or below the count threshold.
+	/// </summary>
+	/// <param name="aScore">The group's accuracy score.</param>
+	/// <param name="duration">How many consecutive minutes were spent in this group.</param>
+	/// <param name="count">How many points were collected for this group</param>
+	/// <returns>True if all requirements were met, false otherwise.</returns>
 	public bool FilterScore(double aScore, double duration, int count)
 	{
 		return

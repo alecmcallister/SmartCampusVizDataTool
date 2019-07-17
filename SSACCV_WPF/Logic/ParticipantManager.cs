@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,6 +40,11 @@ public class ParticipantManager
 		{
 			Participants.AddOrUpdate(point.userid, new Participant(point.userid), (i, p) => { p.AddDataPoint(point); return p; });
 			Interlocked.Increment(ref ConsoleLog.Prog);
+		});
+
+		Parallel.ForEach(Participants, participant =>
+		{
+			participant.Value.CleanPoints();
 		});
 
 		ConsoleLog.LogStop();
@@ -91,7 +95,7 @@ public class ParticipantManager
 		return sorted;
 	}
 
-	public List<StaypointOutput_Anon> GetAnonStaypointOutput()
+	public List<StaypointOutputBase> GetAnonStaypointOutput()
 	{
 		List<StaypointOutput> output = GetStaypointOutput();
 
@@ -140,44 +144,6 @@ public class ParticipantManager
 
 	#endregion
 
-	#region Community StayPoint output
-
-	public List<CommunityStaypointOutput> GetCommunityStayPointOutput()
-	{
-		if (!ReadyForCalc)
-			return null;
-
-		List<CommunityStaypointOutput> output = new List<CommunityStaypointOutput>();
-
-		List<Staypoint> staypoints = new List<Staypoint>();
-
-		Participants.Values.ToList().ForEach(p => { staypoints.AddRange(p.StayPoints); });
-
-		List<List<Staypoint>> grouped = Staypoint.GroupByDate(staypoints);
-
-		foreach (List<Staypoint> group in grouped)
-		{
-			CommunityStaypoint csp = new CommunityStaypoint(group[0]);
-
-			// Separated by date
-
-			bool flag = false;
-
-			foreach (Staypoint sp in group)
-				if (flag |= csp.ConditionalAddStaypoint(sp))
-					break;
-
-			if (flag)
-			{
-
-			}
-		}
-
-		return output;
-	}
-
-	#endregion
-
 	#region Path output
 
 	/// <summary>
@@ -217,7 +183,7 @@ public class ParticipantManager
 		return sorted;
 	}
 
-	public List<PathOutput_Anon> GetAnonPathOutput()
+	public List<PathOutput_Base> GetAnonPathOutput()
 	{
 		List<PathOutput> output = GetPathOutput();
 
@@ -231,14 +197,15 @@ public class ParticipantManager
 
 	#endregion
 
-	List<StaypointOutput_Anon> AnonymizeStaypointOutput(List<StaypointOutput> list)
+	List<StaypointOutputBase> AnonymizeStaypointOutput(List<StaypointOutput> list)
 	{
-		list.Sort(Comparer<StaypointOutput>.Create((spo1, spo2) => { return spo1.StartDate.CompareTo(spo2.StartDate); }));
-		
-		return list.Select(sp => new StaypointOutput_Anon(sp)).ToList();
+		//list.Sort(Comparer<StaypointOutput>.Create((spo1, spo2) => { return spo1.StartDate.CompareTo(spo2.StartDate); }));
+		List<StaypointOutputBase> anon = list.Select(sp => (StaypointOutputBase)sp).ToList();
+		anon.Sort();
+		return anon;
 	}
 
-	List<PathOutput_Anon> AnonymizePathOutput(List<PathOutput> list)
+	List<PathOutput_Base> AnonymizePathOutput(List<PathOutput> list)
 	{
 		List<List<PathOutput>> grouped = GroupPaths(list);
 		grouped.Sort(Comparer<List<PathOutput>>.Create((po1, po2) => { return po1[0].Date.CompareTo(po2[0].Date); }));
@@ -255,7 +222,7 @@ public class ParticipantManager
 			po1.UserID = 0;
 		}
 
-		return output.Select(po => new PathOutput_Anon(po)).ToList();
+		return output.Select(po => (PathOutput_Base)po).ToList();
 	}
 
 	List<List<PathOutput>> GroupPaths(List<PathOutput> list)
@@ -281,78 +248,4 @@ public class ParticipantManager
 
 		return output;
 	}
-}
-
-public static class ConsoleLog
-{
-
-	#region Console Log
-
-	static DateTime LogStartTime;
-	static Task Log;
-
-	public static void LogStart(string message)
-	{
-		LogStartTime = DateTime.Now;
-		Console.WriteLine(message);
-		Log = null;
-	}
-
-	public static void LogStop()
-	{
-		if (Log != null)
-			Log.Wait();
-
-		Log = null;
-		Console.ForegroundColor = ConsoleColor.Green;
-		Console.WriteLine((Console.CursorLeft != 0 ? "\n" : "") + "\tComplete");
-		Console.ForegroundColor = ConsoleColor.DarkGreen;
-		TimeSpan timeDiff = DateTime.Now - LogStartTime;
-		int timeDiffMinutes = timeDiff.Minutes;
-		double timeDiffSeconds = timeDiffMinutes > 0 ? timeDiff.Seconds : timeDiff.TotalSeconds;
-		string minComp = timeDiffMinutes > 0 ? string.Format("\t{0}m ", timeDiffMinutes) : "\t";
-		string totalComp = minComp + string.Format("{0:0.00}s\n", timeDiffSeconds);
-		Console.WriteLine(totalComp);
-		Console.ResetColor();
-	}
-
-	#region Progress
-
-	public static int Prog;
-	public static int Max;
-
-	public static void LogProgress(int max)
-	{
-		Prog = 0;
-		Max = max;
-
-		Log = Task.Run(() =>
-		{
-			while (Prog < Max)
-				WriteProgress(Prog, Max);
-
-			WriteProgress(Prog, Max);
-		});
-	}
-
-	#endregion
-
-	#region Pretty Colors
-
-	public static void WriteProgress(int prog, int max)
-	{
-		Console.CursorLeft = 0;
-		Console.Write("(");
-
-		Console.ForegroundColor = prog < max ? ConsoleColor.Yellow : ConsoleColor.Green;
-		Console.Write("{0}", prog);
-		Console.ResetColor();
-
-		Console.Write("/{0})", max);
-	}
-
-	#endregion
-
-	#endregion
-
 }
