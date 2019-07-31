@@ -3,21 +3,21 @@ using System;
 
 /// <summary>
 /// The information that actually gets written out to the csv file.
-/// Each object represents one staypoint group (a specific period of time stayed within the defined area).
-/// Groups within the same staypoint share location information (Lat + Lon), but have different group centroid locations.
+/// Each object represents one restpoint group (a specific period of time stayed within the defined area).
+/// Groups within the same restpoint share location information (Lat + Lon), but have different group centroid locations.
 /// </summary>
-public class StaypointOutput : StaypointOutputBase, IComparable<StaypointOutput>
+public class RestpointOutput : RestpointOutputBase, IComparable<RestpointOutput>
 {
 	#region Fields
 
 	[Name("User_ID")]
 	public int UserID { get; set; }
 
-	[Name("Staypoint_ID")]
-	public int StaypointID { get; set; }
+	[Name("Restpoint_ID")]
+	public int RestpointID { get; set; }
 
-	[Name("Staypoint_Group_ID")]
-	public int StaypointGroupID { get; set; }
+	[Name("Restpoint_Group_ID")]
+	public int RestpointGroupID { get; set; }
 
 	[Name("Group_Centroid_Lat")]
 	public decimal GroupCentroidLat { get; set; }
@@ -27,15 +27,15 @@ public class StaypointOutput : StaypointOutputBase, IComparable<StaypointOutput>
 
 	#endregion
 
-	public int CompareTo(StaypointOutput other)
+	public int CompareTo(RestpointOutput other)
 	{
 		int val = UserID.CompareTo(other.UserID);
 
 		if (val == 0)
-			val = StaypointID.CompareTo(other.StaypointID);
+			val = RestpointID.CompareTo(other.RestpointID);
 
 		if (val == 0)
-			val = StaypointGroupID.CompareTo(other.StaypointGroupID);
+			val = RestpointGroupID.CompareTo(other.RestpointGroupID);
 
 		if (val == 0)
 			val = StartDate.CompareTo(other.StartDate);
@@ -47,9 +47,9 @@ public class StaypointOutput : StaypointOutputBase, IComparable<StaypointOutput>
 /// <summary>
 /// Anonymous base class.
 /// The information that actually gets written out to the csv file.
-/// Each object represents one staypoint (a specific period of time stayed within the defined area).
+/// Each object represents one restpoint (a specific period of time stayed within the defined area).
 /// </summary>
-public class StaypointOutputBase : IComparable<StaypointOutputBase>
+public class RestpointOutputBase : IComparable<RestpointOutputBase>
 {
 	#region Fields
 
@@ -112,7 +112,7 @@ public class StaypointOutputBase : IComparable<StaypointOutputBase>
 
 	#endregion
 
-	public int CompareTo(StaypointOutputBase other)
+	public int CompareTo(RestpointOutputBase other)
 	{
 		return StartDate.CompareTo(other.StartDate);
 	}

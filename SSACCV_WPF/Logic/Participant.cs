@@ -13,7 +13,7 @@ public class Participant : IComparable<Participant>
 {
 	public int ID { get; set; }
 
-	public List<Staypoint> StayPoints { get; set; } = new List<Staypoint>();
+	public List<Restpoint> RestPoints { get; set; } = new List<Restpoint>();
 	public List<Path> Paths { get; set; } = new List<Path>();
 
 	public ConcurrentBag<DataPoint> Points { get; set; } = new ConcurrentBag<DataPoint>();
@@ -44,30 +44,30 @@ public class Participant : IComparable<Participant>
 
 	#endregion
 
-	#region Staypoints
+	#region Restpoints
 
 	/// <summary>
-	/// Calculate the staypoints for this user.
-	/// Populates the <see cref="StayPoints"/> list.
+	/// Calculate the restpoints for this user.
+	/// Populates the <see cref="RestPoints"/> list.
 	/// </summary>
-	public void CalculateStayPoints()
+	public void CalculateRestPoints()
 	{
-		StayPoints.Clear();
+		RestPoints.Clear();
 
 		List<DataPoint> points = Points.ToList();
 		points.Sort();
 
-		// Go through the sequence of points, and populate the staypoints list
+		// Go through the sequence of points, and populate the restpoints list
 		foreach (DataPoint point in points)
 		{
 			bool flag = false;
 
-			foreach (Staypoint staypoint in StayPoints)
-				if (flag |= staypoint.ConditionalAddPoint(point))
+			foreach (Restpoint restpoint in RestPoints)
+				if (flag |= restpoint.ConditionalAddPoint(point))
 					break;
 
 			if (!flag)
-				StayPoints.Add(new Staypoint(point, StayPoints.Count));
+				RestPoints.Add(new Restpoint(point, RestPoints.Count));
 		}
 	}
 
@@ -108,24 +108,24 @@ public class Participant : IComparable<Participant>
 	#region Helpers
 
 	/// <summary>
-	/// Gets the staypoint id that this point resides in (-2 if none)
+	/// Gets the restpoint id that this point resides in (-2 if none)
 	/// </summary>
 	/// <param name="point"></param>
-	/// <returns>The staypointID of the area, or -2 if none</returns>
-	public int GetStayPointForDataPoint(DataPoint point)
+	/// <returns>The restpointID of the area, or -2 if none</returns>
+	public int GetRestPointForDataPoint(DataPoint point)
 	{
-		int stayPointID = -2;
+		int restPointID = -2;
 
-		foreach (Staypoint stayPoint in StayPoints)
+		foreach (Restpoint restPoint in RestPoints)
 		{
-			if (stayPoint.Contents.Contains(point))
+			if (restPoint.Contents.Contains(point))
 			{
-				stayPointID = stayPoint.StayPointID;
+				restPointID = restPoint.RestPointID;
 				break;
 			}
 		}
 
-		return stayPointID;
+		return restPointID;
 	}
 
 	#endregion

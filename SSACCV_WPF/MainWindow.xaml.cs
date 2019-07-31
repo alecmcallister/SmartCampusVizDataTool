@@ -107,7 +107,7 @@ namespace SSACCV_WPF
 			}
 		}
 
-		#region Staypoint button
+		#region Restpoint button
 
 		void StayClick(object sender, RoutedEventArgs e)
 		{
@@ -120,19 +120,19 @@ namespace SSACCV_WPF
 			{
 				SaveFileDialog dialog = new SaveFileDialog();
 				dialog.Filter = "CSV (*.csv)|*.csv";
-				dialog.FileName = "Staypoints_" + DateTime.Today.Date.ToString("MMMdd") + "_" + Affectors.Instance.GetStaypointIdentityString() + ".csv";
+				dialog.FileName = "Restpoints_" + DateTime.Today.Date.ToString("MMMdd") + "_" + Affectors.Instance.GetRestpointIdentityString() + ".csv";
 				string path = "";
 
 				if (dialog.ShowDialog() == true)
 				{
 					path = dialog.FileName;
 
-					csvManager.Write(path, participantManager.GetStaypointOutput());
+					csvManager.Write(path, participantManager.GetRestpointOutput());
 				}
 			}
 			catch
 			{
-				Console.Error.WriteLine("Error calculating staypoints.");
+				Console.Error.WriteLine("Error calculating restpoints.");
 			}
 
 			Opacity = 1d;
@@ -150,7 +150,7 @@ namespace SSACCV_WPF
 
 		#endregion
 
-		#region Anon Staypoint button
+		#region Anon Restpoint button
 
 		void AnonStayClick(object sender, RoutedEventArgs e)
 		{
@@ -163,19 +163,19 @@ namespace SSACCV_WPF
 			{
 				SaveFileDialog dialog = new SaveFileDialog();
 				dialog.Filter = "CSV (*.csv)|*.csv";
-				dialog.FileName = "Staypoints_" + DateTime.Today.Date.ToString("MMMdd") + "_" + Affectors.Instance.GetStaypointIdentityString() + "_ANON.csv";
+				dialog.FileName = "Restpoints_" + DateTime.Today.Date.ToString("MMMdd") + "_" + Affectors.Instance.GetRestpointIdentityString() + "_ANON.csv";
 				string path = "";
 
 				if (dialog.ShowDialog() == true)
 				{
 					path = dialog.FileName;
 
-					csvManager.Write(path, participantManager.GetAnonStaypointOutput());
+					csvManager.Write(path, participantManager.GetAnonRestpointOutput());
 				}
 			}
 			catch
 			{
-				Console.Error.WriteLine("Error calculating anon staypoints.");
+				Console.Error.WriteLine("Error calculating anon restpoints.");
 			}
 
 			Opacity = 1d;

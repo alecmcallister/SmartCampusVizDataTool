@@ -4,18 +4,18 @@ using System.Collections.Concurrent;
 using System.Linq;
 
 /// <summary>
-/// Abstract representation of a popular staying location for a user.
+/// Abstract representation of a popular resting location for a user.
 /// Ex. classroom, favorite eating spot, etc.
 /// </summary>
-public class Staypoint
+public class Restpoint
 {
 	/// <summary>
-	/// The datapoints within this staypoint
+	/// The datapoints within this restpoint
 	/// </summary>
 	public ConcurrentBag<DataPoint> Contents { get; set; } = new ConcurrentBag<DataPoint>();
 
 	public int UserID { get; set; }
-	public int StayPointID { get; set; }
+	public int RestPointID { get; set; }
 
 	public string BuildingID { get; set; }
 	public string BuildingName { get; set; }
@@ -27,14 +27,14 @@ public class Staypoint
 	public DateTime EndDate => Contents.Max(d => d.loct);
 
 	/// <summary>
-	/// Initializes a new staypoint centered on the given datapoint
+	/// Initializes a new restpoint centered on the given datapoint
 	/// </summary>
 	/// <param name="point">The raw point data</param>
-	/// <param name="radius">The radius of this staypoint</param>
-	public Staypoint(DataPoint point, int stayPointID)
+	/// <param name="radius">The radius of this restpoint</param>
+	public Restpoint(DataPoint point, int restPointID)
 	{
 		UserID = point.userid;
-		StayPointID = stayPointID;
+		RestPointID = restPointID;
 		BuildingID = point.building_id;
 		BuildingName = point.building_name;
 		Location = point.location;
@@ -44,13 +44,12 @@ public class Staypoint
 	#region Add point
 
 	/// <summary>
-	/// Only adds points that are within the given radius
+	/// Only adds points that are within <see cref="Affectors.Rest_Radius"/> meters of the center of this restpoint
 	/// </summary>
 	/// <param name="point">The point we want to potentially add</param>
 	/// <returns>True if the point was added, false otherwise</returns>
 	public bool ConditionalAddPoint(DataPoint point)
 	{
-		// This is currently the only metric we use to place points
 		if (OverlapsPoint(point))
 		{
 			Contents.Add(point);
@@ -62,35 +61,39 @@ public class Staypoint
 
 	#endregion
 
-	#region Strength calculations
+	#region Calculations
 
 	/// <summary>
-	/// Calculated the strength of the staypoint groups, and returns them in a list.
+	/// Calculates the strength of the restpoint groups, and returns them in a list.
 	/// </summary>
 	/// <returns>Output list</returns>
-	public List<StaypointOutput> GetOutput()
+	public List<RestpointOutput> GetOutput()
 	{
-		List<StaypointOutput> output = new List<StaypointOutput>();
+		List<RestpointOutput> output = new List<RestpointOutput>();
 
+		// Get the points into a normal (non-concurrent) list, and sort them based on time
 		List<DataPoint> points = Contents.ToList();
 		points.Sort();
 
-		// Only do the calculation once
+		// Save the results of the centroid calculation
 		Vector2 centroid = Centroid;
 
 		List<DataPoint> tempGroup = new List<DataPoint>();
 
+		// Iterate over all datapoints gathered
+		// Groups datapoints together to form "restpoint groups" based on several factors
+		// (primarily the amount of time spent within the respoint without leaving)
 		for (int i = 0, j = 1; i < points.Count; i++, j++)
 		{
 			tempGroup.Add(points[i]);
 
-			double timeDiff = Affectors.Instance.Stay_TimeDiffCutoff + 1;
+			double timeDiff = Affectors.Instance.Rest_TimeDiffCutoff + 1;
 
-			// Only include events that are within the cutoff time of each other (i.e. passing by briefly won't contribute)
+			// Only include datapoints that are within the cutoff time of each other (i.e. passing by briefly won't contribute)
 			if (j != Contents.Count)
 				timeDiff = (points[j].loct - points[i].loct).TotalMinutes;
 
-			if (timeDiff > Affectors.Instance.Stay_TimeDiffCutoff)
+			if (timeDiff > Affectors.Instance.Rest_TimeDiffCutoff)
 			{
 				DataPoint first = tempGroup.First();
 				DataPoint last = tempGroup.Last();
@@ -109,11 +112,11 @@ public class Staypoint
 
 					Vector2 groupCentroid = Vector2.Centroid(tempGroup.Select(p => p.location).ToList());
 
-					StaypointOutput spaghetti = new StaypointOutput()
+					RestpointOutput spaghetti = new RestpointOutput()
 					{
 						UserID = UserID,
-						StaypointID = StayPointID,
-						StaypointGroupID = output.Count,
+						RestpointID = RestPointID,
+						RestpointGroupID = output.Count,
 						StartDate = first.loct,
 						EndDate = last.loct,
 						StayDurationMinutes = (float)duration,
@@ -148,7 +151,7 @@ public class Staypoint
 	}
 
 	/// <summary>
-	/// Filters out staypoint groups under the accuracy score threshold, under the duration threshold, or below the count threshold.
+	/// Filters out restpoint groups under the accuracy score threshold, under the duration threshold, or below the count threshold.
 	/// </summary>
 	/// <param name="aScore">The group's accuracy score.</param>
 	/// <param name="duration">How many consecutive minutes were spent in this group.</param>
@@ -166,14 +169,14 @@ public class Staypoint
 
 	public double CalculateQuantityScoreOfGroup(List<DataPoint> dataPoints)
 	{
-		return Affectors.Instance.QuantityScale(Math.Max(1d, dataPoints.Count * Affectors.Instance.Stay_QuantityWeight));
+		return Affectors.Instance.QuantityScale(Math.Max(1d, dataPoints.Count * Affectors.Instance.Rest_QuantityWeight));
 	}
 
 	public double CalculateTemporalScoreOfGroup(List<DataPoint> dataPoints)
 	{
 		double timeSpent = (dataPoints.Last().loct - dataPoints.First().loct).TotalMinutes;
 
-		return Affectors.Instance.TemporalScale(Math.Max(1d, timeSpent * Affectors.Instance.Stay_TemporalWeight));
+		return Affectors.Instance.TemporalScale(Math.Max(1d, timeSpent * Affectors.Instance.Rest_TemporalWeight));
 	}
 
 	public double CalculateAccuracyScoreOfGroup(List<DataPoint> dataPoints)
@@ -181,64 +184,23 @@ public class Staypoint
 		if (dataPoints.Count == 0)
 			return 0d;
 
-		return Math.Min(dataPoints.Average(dp => Affectors.Instance.Stay_AccuracyGoal / dp.accuracy), Affectors.Instance.Stay_AScoreCeiling);
+		return Math.Min(dataPoints.Average(dp => Affectors.Instance.Rest_AccuracyGoal / dp.accuracy), Affectors.Instance.Rest_AScoreCeiling);
 	}
 
 	#endregion
 
 	#endregion
 
-	#region Helpers
+	#region Logic
 
 	/// <summary>
-	/// Does this staypoint overlap the given datapoint?
+	/// Does this restpoint overlap the given datapoint?
 	/// </summary>
 	/// <param name="point">The point in question.</param>
 	/// <returns>True if the point is within <see cref="Radius"/> units, false otherwise</returns>
 	public bool OverlapsPoint(DataPoint point)
 	{
-		return Location.IsWithinDistance(point.location, Affectors.Instance.Stay_Radius);
-	}
-
-	/// <summary>
-	/// Returns all points within the given interval
-	/// </summary>
-	/// <param name="start">Start time.</param>
-	/// <param name="end">End time.</param>
-	/// <returns></returns>
-	public List<DataPoint> PointsWithinTimeInterval(DateTime start, DateTime end)
-	{
-		return Contents.Where(x => x.loct > start && x.loct < end).ToList();
-	}
-
-	/// <summary>
-	/// Perform an intersection of points in a and b
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>A list of <see cref="DataPoint"/> which reside in both staypoints.</returns>
-	public static List<DataPoint> operator &(Staypoint a, Staypoint b)
-	{
-		return a.Contents.Where(p => a.OverlapsPoint(p) && b.OverlapsPoint(p)).ToList();
-	}
-
-	/// <summary>
-	/// Perform a union of points in a and b
-	/// </summary>
-	/// <param name="a"></param>
-	/// <param name="b"></param>
-	/// <returns>A list of <see cref="DataPoint"/> which reside in either staypoint.</returns>
-	public static List<DataPoint> operator |(Staypoint a, Staypoint b)
-	{
-		return a.Contents.Union(b.Contents).ToList();
-	}
-
-	public static List<List<Staypoint>> GroupByDate(List<Staypoint> input)
-	{
-		input.Sort(Comparer<Staypoint>.Create((sp1, sp2) => { return sp1.StartDate.CompareTo(sp2.StartDate); }));
-
-		// https://stackoverflow.com/questions/2697253/using-linq-to-group-a-list-of-objects-into-a-new-grouped-list-of-list-of-objects
-		return input.GroupBy(sp => sp.StartDate.Date).Select(g => g.ToList()).ToList();
+		return Location.IsWithinDistance(point.location, Affectors.Instance.Rest_Radius);
 	}
 
 	#endregion

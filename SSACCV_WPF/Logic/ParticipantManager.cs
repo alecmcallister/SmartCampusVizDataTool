@@ -54,27 +54,27 @@ public class ParticipantManager
 
 	#region Output
 
-	#region StayPoint output
+	#region RestPoint output
 
 	/// <summary>
-	/// Calculates the participants staypoint groups, and returns them in a list ready to be written to a csv.
+	/// Calculates the participants restpoint groups, and returns them in a list ready to be written to a csv.
 	/// </summary>
-	/// <returns>The list of staypoint groups</returns>
-	public List<StaypointOutput> GetStaypointOutput()
+	/// <returns>The list of restpoint groups</returns>
+	public List<RestpointOutput> GetRestpointOutput()
 	{
 		if (!ReadyForCalc)
 			return null;
 
-		ConsoleLog.LogStart("Calculating StayPoint output...");
+		ConsoleLog.LogStart("Calculating RestPoint output...");
 		ConsoleLog.LogProgress(Participants.Count);
 
-		ConcurrentBag<StaypointOutput> output = new ConcurrentBag<StaypointOutput>();
+		ConcurrentBag<RestpointOutput> output = new ConcurrentBag<RestpointOutput>();
 
 		Parallel.ForEach(Participants.Values, participant =>
 		{
-			participant.CalculateStayPoints();
+			participant.CalculateRestPoints();
 
-			participant.StayPoints.ForEach(sp =>
+			participant.RestPoints.ForEach(sp =>
 			{
 				sp.GetOutput().ForEach(spo =>
 				{
@@ -87,7 +87,7 @@ public class ParticipantManager
 
 		ConsoleLog.LogStop();
 
-		List<StaypointOutput> sorted = output.ToList();
+		List<RestpointOutput> sorted = output.ToList();
 		sorted.Sort();
 
 		ReAssignIDs(sorted);
@@ -95,17 +95,17 @@ public class ParticipantManager
 		return sorted;
 	}
 
-	public List<StaypointOutputBase> GetAnonStaypointOutput()
+	public List<RestpointOutputBase> GetAnonRestpointOutput()
 	{
-		List<StaypointOutput> output = GetStaypointOutput();
+		List<RestpointOutput> output = GetRestpointOutput();
 
 		if (output == null)
 			return null;
 
-		return AnonymizeStaypointOutput(output);
+		return AnonymizeRestpointOutput(output);
 	}
 
-	void ReAssignIDs(List<StaypointOutput> output)
+	void ReAssignIDs(List<RestpointOutput> output)
 	{
 		int id = 0;
 
@@ -114,20 +114,20 @@ public class ParticipantManager
 		int x = 0;
 		int y = 0;
 
-		foreach (StaypointOutput g in output)
+		foreach (RestpointOutput g in output)
 		{
 			if (g.UserID != id)
 			{
 				id = g.UserID;
-				stayID = g.StaypointID;
+				stayID = g.RestpointID;
 				x = 0;
 				y = 0;
 			}
 			else
 			{
-				if (g.StaypointID != stayID)
+				if (g.RestpointID != stayID)
 				{
-					stayID = g.StaypointID;
+					stayID = g.RestpointID;
 					x++;
 					y = 0;
 				}
@@ -137,8 +137,8 @@ public class ParticipantManager
 				}
 			}
 
-			g.StaypointID = x;
-			g.StaypointGroupID = y;
+			g.RestpointID = x;
+			g.RestpointGroupID = y;
 		}
 	}
 
@@ -197,10 +197,10 @@ public class ParticipantManager
 
 	#endregion
 
-	List<StaypointOutputBase> AnonymizeStaypointOutput(List<StaypointOutput> list)
+	List<RestpointOutputBase> AnonymizeRestpointOutput(List<RestpointOutput> list)
 	{
-		//list.Sort(Comparer<StaypointOutput>.Create((spo1, spo2) => { return spo1.StartDate.CompareTo(spo2.StartDate); }));
-		List<StaypointOutputBase> anon = list.Select(sp => (StaypointOutputBase)sp).ToList();
+		//list.Sort(Comparer<RestpointOutput>.Create((spo1, spo2) => { return spo1.StartDate.CompareTo(spo2.StartDate); }));
+		List<RestpointOutputBase> anon = list.Select(sp => (RestpointOutputBase)sp).ToList();
 		anon.Sort();
 		return anon;
 	}

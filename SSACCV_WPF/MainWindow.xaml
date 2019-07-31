@@ -90,7 +90,7 @@
 						<Grid>
 							<TextBlock 
 								FontFamily="{StaticResource RobotoLight}"
-								Text="Calculate Staypoints"
+								Text="Calculate Restpoints"
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"
 								Effect="{StaticResource DropShadow-L}"/>
@@ -137,7 +137,7 @@
 						<Grid>
 							<TextBlock 
 								FontFamily="{StaticResource RobotoLight}"
-								Text="Anon Staypoints"
+								Text="Anon Restpoints"
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"
 								Effect="{StaticResource DropShadow-L}"/>
