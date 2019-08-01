@@ -14,6 +14,12 @@ public class PathOutput : PathOutput_Base, IComparable<PathOutput>
 
 	#endregion
 
+	/// <summary>
+	/// Used for sorting.
+	/// Sorts on user ID, then path ID, then path point ID.
+	/// </summary>
+	/// <param name="other">The path point we are comparing against</param>
+	/// <returns>An integer with the comparison result</returns>
 	public int CompareTo(PathOutput other)
 	{
 		int val = UserID.CompareTo(other.UserID);
@@ -131,6 +137,12 @@ public class PathOutput_Base : IComparable<PathOutput_Base>
 
 	#endregion
 
+	/// <summary>
+	/// Used for sorting.
+	/// Sorts on path ID, then path point ID.
+	/// </summary>
+	/// <param name="other">The path point we are comparing against</param>
+	/// <returns>An integer with the comparison result</returns>
 	public int CompareTo(PathOutput_Base other)
 	{
 		int val = PathID.CompareTo(other.PathID);

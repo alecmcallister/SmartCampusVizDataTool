@@ -76,7 +76,7 @@ public class Restpoint
 	/// <summary>
 	/// Only adds points that are within <see cref="Affectors.Rest_Radius"/> meters of the center of this restpoint
 	/// </summary>
-	/// <param name="point">The point we want to potentially add</param>
+	/// <param name="point">The point we want to add</param>
 	/// <returns>True if the point was added, false otherwise</returns>
 	public bool ConditionalAddPoint(DataPoint point)
 	{
@@ -94,7 +94,7 @@ public class Restpoint
 	#region Calculations
 
 	/// <summary>
-	/// Calculates the restpoint groups, and returns them in a list.
+	/// Calculates the restpoint groups, and returns them in a list (ready to be written to csv).
 	/// Each restpoint group consists of a set of datapoints, and define a period of 
 	/// time when the user rested inside this restpoint's location.
 	/// Each group has it's own date, duration, score, etc.
@@ -141,6 +141,8 @@ public class Restpoint
 
 				// Calculate the accuracy score of the new restpoint group
 				double aScore = CalculateAccuracyScoreOfGroup(tempGroup);
+
+				// The time (minutes) that was spent in the group
 				double duration = (last.loct - first.loct).TotalMinutes;
 
 				// Filter group based on accuracy, duration, and amount of points
