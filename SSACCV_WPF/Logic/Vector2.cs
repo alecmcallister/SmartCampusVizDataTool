@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 /// <summary>
 /// A simple Vector2 class that uses decimals instead of doubles (128b vs 64b precision).
@@ -67,11 +63,11 @@ public class Vector2
 		return AzimuthDistance(this, other);
 	}
 
+	#region Bearing
+
 	/// <summary>
 	/// https://stackoverflow.com/questions/2042599/direction-between-2-latitude-longitude-points-in-c-sharp
 	/// </summary>
-	#region
-
 	static double DegreeBearing(double lat1, double lon1, double lat2, double lon2)
 	{
 		double dLon = ToRad(lon2 - lon1);
@@ -121,6 +117,11 @@ public class Vector2
 
 	#endregion
 
+	/// <summary>
+	/// Calculates the centroid point for the given list
+	/// </summary>
+	/// <param name="list">List of points</param>
+	/// <returns>The centroid point (average x, average y)</returns>
 	public static Vector2 Centroid(List<Vector2> list)
 	{
 		Vector2 result = zero;
@@ -149,18 +150,15 @@ public class Vector2
 
 	#region Maths
 
+	/// <summary>
+	/// Is the given vector within the given distance from us?
+	/// </summary>
+	/// <param name="other">The other vector</param>
+	/// <param name="distance">The distance threshold</param>
+	/// <returns>True if the distance between the two vectors is less than the given distance threshold</returns>
 	public bool IsWithinDistance(Vector2 other, double distance)
 	{
 		return AzimuthDistance(this, other) < distance;
-	}
-
-	public static Vector2 Average(List<Vector2> vectors)
-	{
-		Vector2 result = zero;
-
-		vectors.ForEach(x => result += x);
-
-		return result / vectors.Count;
 	}
 
 	/// <summary>
@@ -199,6 +197,11 @@ public class Vector2
 		return X == vec.X && Y == vec.Y;
 	}
 
+	/// <summary>
+	/// Used when equating two doubles. Allows for some deviation between the two numbers.
+	/// </summary>
+	/// <param name="b">The other vector</param>
+	/// <returns>True if b is within <see cref="Affectors.Path_EssentiallyEqualsDistance"/> of us, false otherwise</returns>
 	public bool EssentiallyEquals(Vector2 b)
 	{
 		double dist = Affectors.Instance.Path_EssentiallyEqualsDistance;

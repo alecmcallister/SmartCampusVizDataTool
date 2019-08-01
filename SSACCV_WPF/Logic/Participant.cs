@@ -11,11 +11,16 @@ using System.Threading;
 /// </summary>
 public class Participant : IComparable<Participant>
 {
+	// The users ID
 	public int ID { get; set; }
 
+	// The users restpoints
 	public List<Restpoint> RestPoints { get; set; } = new List<Restpoint>();
+
+	// The users paths
 	public List<Path> Paths { get; set; } = new List<Path>();
 
+	// The points belonging to the user
 	public ConcurrentBag<DataPoint> Points { get; set; } = new ConcurrentBag<DataPoint>();
 
 	public Participant() : this(-1) { }
@@ -35,6 +40,9 @@ public class Participant : IComparable<Participant>
 		Points.Add(point);
 	}
 
+	/// <summary>
+	/// Makes sure the points are sorted nicely.
+	/// </summary>
 	public void CleanPoints()
 	{
 		List<DataPoint> points = Points.ToList();
@@ -101,31 +109,6 @@ public class Participant : IComparable<Participant>
 				currentPath = new Path(point, Paths.Count);
 			}
 		}
-	}
-
-	#endregion
-
-	#region Helpers
-
-	/// <summary>
-	/// Gets the restpoint id that this point resides in (-2 if none)
-	/// </summary>
-	/// <param name="point"></param>
-	/// <returns>The restpointID of the area, or -2 if none</returns>
-	public int GetRestPointForDataPoint(DataPoint point)
-	{
-		int restPointID = -2;
-
-		foreach (Restpoint restPoint in RestPoints)
-		{
-			if (restPoint.Contents.Contains(point))
-			{
-				restPointID = restPoint.RestPointID;
-				break;
-			}
-		}
-
-		return restPointID;
 	}
 
 	#endregion

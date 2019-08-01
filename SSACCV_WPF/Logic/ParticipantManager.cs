@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
@@ -10,16 +9,18 @@ using System.Threading.Tasks;
 /// </summary>
 public class ParticipantManager
 {
+	// Whether or not to strip personal information from the final output
 	public bool Anonymize = true;
+
+	// Indexer
+	public Participant this[int i] { get { return Participants.ContainsKey(i) ? Participants[i] : null; } }
 
 	/// <summary>
 	/// Dictionary containing all participants (users) in the dataset
 	/// </summary>
-	//public SortedDictionary<int, Participant> Participants = new SortedDictionary<int, Participant>();
-	public Participant this[int i] { get { return Participants.ContainsKey(i) ? Participants[i] : null; } }
-
 	public ConcurrentDictionary<int, Participant> Participants = new ConcurrentDictionary<int, Participant>();
 
+	// Are we ready to perform calculations on the parsed datapoints?
 	public bool ReadyForCalc;
 
 	/// <summary>
@@ -36,12 +37,14 @@ public class ParticipantManager
 		ConsoleLog.LogStart("Adding DataPoints...");
 		ConsoleLog.LogProgress(points.Count);
 
+		// Create new participants/ edit existing participants
 		Parallel.ForEach(points, point =>
 		{
 			Participants.AddOrUpdate(point.userid, new Participant(point.userid), (i, p) => { p.AddDataPoint(point); return p; });
 			Interlocked.Increment(ref ConsoleLog.Prog);
 		});
 
+		// Clean + sort each participants datapoints
 		Parallel.ForEach(Participants, participant =>
 		{
 			participant.Value.CleanPoints();
@@ -70,6 +73,7 @@ public class ParticipantManager
 
 		ConcurrentBag<RestpointOutput> output = new ConcurrentBag<RestpointOutput>();
 
+		// Calculate each participants restpoints
 		Parallel.ForEach(Participants.Values, participant =>
 		{
 			participant.CalculateRestPoints();
@@ -95,6 +99,10 @@ public class ParticipantManager
 		return sorted;
 	}
 
+	/// <summary>
+	/// Gets the anonymized version of the restpoint output
+	/// </summary>
+	/// <returns>Anonymized restpoint output</returns>
 	public List<RestpointOutputBase> GetAnonRestpointOutput()
 	{
 		List<RestpointOutput> output = GetRestpointOutput();
@@ -105,12 +113,14 @@ public class ParticipantManager
 		return AnonymizeRestpointOutput(output);
 	}
 
+	/// <summary>
+	/// Reassigns IDs so that they are each 1 away. Called after some IDs have been removed from the list.
+	/// </summary>
+	/// <param name="output">The same list, except with proper IDs</param>
 	void ReAssignIDs(List<RestpointOutput> output)
 	{
 		int id = 0;
-
 		int stayID = 0;
-
 		int x = 0;
 		int y = 0;
 
@@ -160,6 +170,7 @@ public class ParticipantManager
 
 		ConcurrentBag<PathOutput> output = new ConcurrentBag<PathOutput>();
 
+		// Calculate each participants paths
 		Parallel.ForEach(Participants, kvp =>
 		{
 			Participant participant = kvp.Value;
@@ -183,6 +194,10 @@ public class ParticipantManager
 		return sorted;
 	}
 
+	/// <summary>
+	/// Gets the anonymized version of the path output
+	/// </summary>
+	/// <returns>Anonymized path output</returns>
 	public List<PathOutput_Base> GetAnonPathOutput()
 	{
 		List<PathOutput> output = GetPathOutput();
@@ -197,14 +212,25 @@ public class ParticipantManager
 
 	#endregion
 
+	#region Anonymization
+
+	/// <summary>
+	/// Anonymize the restpoint output
+	/// </summary>
+	/// <param name="list">The output that needs anonymization</param>
+	/// <returns>Anonymized respoint output</returns>
 	List<RestpointOutputBase> AnonymizeRestpointOutput(List<RestpointOutput> list)
 	{
-		//list.Sort(Comparer<RestpointOutput>.Create((spo1, spo2) => { return spo1.StartDate.CompareTo(spo2.StartDate); }));
 		List<RestpointOutputBase> anon = list.Select(sp => (RestpointOutputBase)sp).ToList();
 		anon.Sort();
 		return anon;
 	}
 
+	/// <summary>
+	/// Anonymize the path output
+	/// </summary>
+	/// <param name="list">The output that needs anonymization</param>
+	/// <returns>Anonymized path output</returns>
 	List<PathOutput_Base> AnonymizePathOutput(List<PathOutput> list)
 	{
 		List<List<PathOutput>> grouped = GroupPaths(list);
@@ -225,6 +251,11 @@ public class ParticipantManager
 		return output.Select(po => (PathOutput_Base)po).ToList();
 	}
 
+	/// <summary>
+	/// Used in anonymization. Groups paths together so we don't need to reference their UserID
+	/// </summary>
+	/// <param name="list">The user's paths</param>
+	/// <returns>The grouped paths</returns>
 	List<List<PathOutput>> GroupPaths(List<PathOutput> list)
 	{
 		List<List<PathOutput>> output = new List<List<PathOutput>>();
@@ -248,4 +279,7 @@ public class ParticipantManager
 
 		return output;
 	}
+
+	#endregion
+
 }
