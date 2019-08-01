@@ -1,10 +1,8 @@
 ﻿using CsvHelper;
-using SSACCV_WPF;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -94,38 +92,6 @@ public class CsvManager
 
 		Busy = false;
 	}
-
-	//public void WriteJson<T>(string filepath, List<T> output)
-	//{
-	//	//if (output == null)
-	//	//	return;
-
-	//	//Busy = true;
-
-	//	//ConsoleLog.LogStart(string.Format("Writing {0}:", typeof(T).Name));
-	//	//WritePathToConsole(filepath);
-
-
-	//	using (StreamWriter sr = File.CreateText(filepath))
-	//	{
-	//		JsonSerializer serializer = new JsonSerializer();
-
-	//		serializer.Formatting = Formatting.Indented;
-
-	//		serializer.Serialize(sr, output);
-
-	//		//using (CsvWriter csv = new CsvWriter(sr))
-	//		//{
-	//		//	csv.WriteHeader<T>();
-	//		//	csv.NextRecord();
-	//		//	csv.WriteRecords(output);
-	//		//}
-	//	}
-
-	//	//ConsoleLog.LogStop();
-
-	//	//Busy = false;
-	//}
 
 	#endregion
 

@@ -2,22 +2,12 @@
 using SSACCV_WPF.Properties;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SSACCV_WPF
 {
@@ -45,8 +35,7 @@ namespace SSACCV_WPF
 			InitializeComponent();
 			PopulateAffectorPanel();
 
-			//InputFilePath.HeaderLabel.Text = "Input file:";
-			InputFilePath.HeaderLabel.Text = Settings.Default.TestSetting;
+			InputFilePath.HeaderLabel.Text = "Input file:";
 			InputFilePath.LoadRequested += LoadData;
 
 			CalcPathButton.IsEnabled = CalcStayButton.IsEnabled = CalcAnonStayButton.IsEnabled = CalcAnonPathButton.IsEnabled = false;
@@ -69,24 +58,16 @@ namespace SSACCV_WPF
 
 			if (points?.Count > 0)
 				participantManager.AddDataPoints(points);
-
-			Settings.Default.TestSetting = "fffff";
 		}
 
 		void OnCloseClick(object sender, RoutedEventArgs e)
 		{
-			Settings.Default.Save();
 			Close();
 		}
 
 		void PopulateAffectorPanel()
 		{
 			List<PropertyInfo> properties = typeof(Affectors).GetProperties().ToList();
-
-			//foreach (SettingsProperty property in Settings.Default.Properties)
-			//{
-			//	AffectorControl control = new AffectorControl(property.Name, )
-			//}
 
 			foreach (PropertyInfo property in properties)
 			{
