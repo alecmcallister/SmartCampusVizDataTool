@@ -1,2 +1,7 @@
 # SuperSmartAndCoolCampusViz
-see title
+
+Website:
+https://smartcampus.ucalgary.ca/
+
+Visualization:
+https://smartcampus.ucalgary.ca/vis/
