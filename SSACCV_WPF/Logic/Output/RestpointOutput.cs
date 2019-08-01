@@ -27,6 +27,12 @@ public class RestpointOutput : RestpointOutputBase, IComparable<RestpointOutput>
 
 	#endregion
 
+	/// <summary>
+	/// Used for sorting.
+	/// Sorts on user ID, then respoint ID, then restpoint group ID, then start date.
+	/// </summary>
+	/// <param name="other">The restpoint we are comparing against</param>
+	/// <returns>An integer with the comparison result</returns>
 	public int CompareTo(RestpointOutput other)
 	{
 		int val = UserID.CompareTo(other.UserID);
@@ -112,6 +118,12 @@ public class RestpointOutputBase : IComparable<RestpointOutputBase>
 
 	#endregion
 
+	/// <summary>
+	/// Used for sorting.
+	/// Sorts on start date.
+	/// </summary>
+	/// <param name="other">The restpoint we are comparing against</param>
+	/// <returns>An integer with the comparison result</returns>
 	public int CompareTo(RestpointOutputBase other)
 	{
 		return StartDate.CompareTo(other.StartDate);
