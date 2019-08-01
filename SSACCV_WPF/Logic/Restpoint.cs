@@ -6,6 +6,7 @@ using System.Linq;
 /// <summary>
 /// Abstract representation of a popular resting location for a user.
 /// Ex. classroom, favorite eating spot, etc.
+/// Comprised of multiple restpoint groups (denoting a period of time the user stayed near the center of this restpoint)
 /// </summary>
 public class Restpoint
 {
@@ -14,23 +15,52 @@ public class Restpoint
 	/// </summary>
 	public ConcurrentBag<DataPoint> Contents { get; set; } = new ConcurrentBag<DataPoint>();
 
+	/// <summary>
+	/// The user that this restpoint belongs to
+	/// </summary>
 	public int UserID { get; set; }
+
+	/// <summary>
+	/// The restpoint's ID (unique to each user)
+	/// </summary>
 	public int RestPointID { get; set; }
 
+	/// <summary>
+	/// The ID of the building that this restpoint is located in (if any)
+	/// </summary>
 	public string BuildingID { get; set; }
+
+	/// <summary>
+	/// The name of the building that this restpoint is located in (if any)
+	/// </summary>
 	public string BuildingName { get; set; }
 
+	/// <summary>
+	/// The location (latitude, longitude) of this restpoint
+	/// </summary>
 	public Vector2 Location { get; set; }
+
+	/// <summary>
+	/// The centroid location (latitude, longitude) of this restpoint.
+	/// Calculated as the average location of all added datapoints
+	/// </summary>
 	public Vector2 Centroid => Vector2.Centroid(Contents.Select(p => p.location).ToList());
 
+	/// <summary>
+	/// The date of the first datapoint that was added
+	/// </summary>
 	public DateTime StartDate => Contents.Min(d => d.loct);
+
+	/// <summary>
+	/// The date of the last datapoint that was added
+	/// </summary>
 	public DateTime EndDate => Contents.Max(d => d.loct);
 
 	/// <summary>
 	/// Initializes a new restpoint centered on the given datapoint
 	/// </summary>
 	/// <param name="point">The raw point data</param>
-	/// <param name="radius">The radius of this restpoint</param>
+	/// <param name="restPointID">The ID of this restpoint</param>
 	public Restpoint(DataPoint point, int restPointID)
 	{
 		UserID = point.userid;
@@ -64,9 +94,16 @@ public class Restpoint
 	#region Calculations
 
 	/// <summary>
-	/// Calculates the strength of the restpoint groups, and returns them in a list.
+	/// Calculates the restpoint groups, and returns them in a list.
+	/// Each restpoint group consists of a set of datapoints, and define a period of 
+	/// time when the user rested inside this restpoint's location.
+	/// Each group has it's own date, duration, score, etc.
+	/// 
+	/// Ex. 
+	/// The restpoint is located near your office. 
+	/// Each restpoint group would represent a seperate period of time in which you stayed in your office.
 	/// </summary>
-	/// <returns>Output list</returns>
+	/// <returns>List of all calculated restpoint groups</returns>
 	public List<RestpointOutput> GetOutput()
 	{
 		List<RestpointOutput> output = new List<RestpointOutput>();
@@ -89,30 +126,39 @@ public class Restpoint
 
 			double timeDiff = Affectors.Instance.Rest_TimeDiffCutoff + 1;
 
-			// Only include datapoints that are within the cutoff time of each other (i.e. passing by briefly won't contribute)
 			if (j != Contents.Count)
 				timeDiff = (points[j].loct - points[i].loct).TotalMinutes;
 
+			// Only include datapoints that are within the cutoff time of each other
+			// i.e. points that are a long time away from each other will be put into the next group
 			if (timeDiff > Affectors.Instance.Rest_TimeDiffCutoff)
 			{
+				// If we are here, then the contents of tempGroup will become a new restpoint group
+
+				// Grab the first + last datapoints in tempGroup (to be used in calculations)
 				DataPoint first = tempGroup.First();
 				DataPoint last = tempGroup.Last();
 
+				// Calculate the accuracy score of the new restpoint group
 				double aScore = CalculateAccuracyScoreOfGroup(tempGroup);
 				double duration = (last.loct - first.loct).TotalMinutes;
 
-				// Filter based on score
+				// Filter group based on accuracy, duration, and amount of points
+				// If false, the group will be dropped from the restpoint
 				bool addToOutput = FilterScore(aScore, duration, tempGroup.Count);
 
 				if (addToOutput)
 				{
+					// Calcualte the score(s) of the new restpoint group
 					double qScore = CalculateQuantityScoreOfGroup(tempGroup);
 					double tScore = CalculateTemporalScoreOfGroup(tempGroup);
 					double cScore = qScore * tScore * aScore;
 
+					// Calculate the group centroid (different from the overall centroid)
 					Vector2 groupCentroid = Vector2.Centroid(tempGroup.Select(p => p.location).ToList());
 
-					RestpointOutput spaghetti = new RestpointOutput()
+					// Instantiate the new group and add it to the list of other groups
+					RestpointOutput newGroup = new RestpointOutput()
 					{
 						UserID = UserID,
 						RestpointID = RestPointID,
@@ -140,15 +186,19 @@ public class Restpoint
 						GroupCentroidLon = groupCentroid.Y
 					};
 
-					output.Add(spaghetti);
+					output.Add(newGroup);
 				}
 
+				// Clear the points from tempGroup in preparation for the next group
 				tempGroup.Clear();
 			}
 		}
 
+		// Returns the list of all restpoint groups within this restpoint
 		return output;
 	}
+
+	#region Calculations
 
 	/// <summary>
 	/// Filters out restpoint groups under the accuracy score threshold, under the duration threshold, or below the count threshold.
@@ -165,13 +215,23 @@ public class Restpoint
 			Affectors.Instance.countVerify(count);
 	}
 
-	#region Score calculation
-
+	/// <summary>
+	/// Calculates the quantity score of a restpoint group.
+	/// Higher scores are given to groups with more points within them.
+	/// </summary>
+	/// <param name="dataPoints">The datapoints within the group</param>
+	/// <returns>The quantity score</returns>
 	public double CalculateQuantityScoreOfGroup(List<DataPoint> dataPoints)
 	{
 		return Affectors.Instance.QuantityScale(Math.Max(1d, dataPoints.Count * Affectors.Instance.Rest_QuantityWeight));
 	}
 
+	/// <summary>
+	/// Calculates the temporal score of a restpoint group.
+	/// Higher scores are given to groups with a higher duration.
+	/// </summary>
+	/// <param name="dataPoints">The datapoints within the group</param>
+	/// <returns>The temporal score</returns>
 	public double CalculateTemporalScoreOfGroup(List<DataPoint> dataPoints)
 	{
 		double timeSpent = (dataPoints.Last().loct - dataPoints.First().loct).TotalMinutes;
@@ -179,6 +239,12 @@ public class Restpoint
 		return Affectors.Instance.TemporalScale(Math.Max(1d, timeSpent * Affectors.Instance.Rest_TemporalWeight));
 	}
 
+	/// <summary>
+	/// Calculates the accuracy score of a restpoint group.
+	/// Higher scores are given to groups with more precise average accuracy.
+	/// </summary>
+	/// <param name="dataPoints">The datapoints within the group</param>
+	/// <returns>The accuracy score</returns>
 	public double CalculateAccuracyScoreOfGroup(List<DataPoint> dataPoints)
 	{
 		if (dataPoints.Count == 0)
@@ -186,12 +252,6 @@ public class Restpoint
 
 		return Math.Min(dataPoints.Average(dp => Affectors.Instance.Rest_AccuracyGoal / dp.accuracy), Affectors.Instance.Rest_AScoreCeiling);
 	}
-
-	#endregion
-
-	#endregion
-
-	#region Logic
 
 	/// <summary>
 	/// Does this restpoint overlap the given datapoint?
@@ -204,4 +264,7 @@ public class Restpoint
 	}
 
 	#endregion
+
+	#endregion
+
 }
